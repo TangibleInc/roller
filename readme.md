@@ -38,6 +38,8 @@ Before starting, the builder needs a configuration file.
 
 Create a file called `tangible.config.js` in your project folder.
 
+Example:
+
 ```js
 module.exports = {
   build: [
@@ -55,8 +57,8 @@ module.exports = {
 
 The `build` property is an array of tasks. Each task has the following properties:
 
-- `src` - Source file with extension `.js`, `.ts`, `.tsx`, or .`scss`
-- `dest` - Destination file with extension `.min.js`, or `.min.css`
+- `src` - Source file with extension `js`, `ts`, `tsx`, or `scss`
+- `dest` - Destination file with extension `min.js`, or `min.css`
 
 
 ## Usage
