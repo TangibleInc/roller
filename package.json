@@ -1,7 +1,7 @@
 {
   "name": "@tangible/roller",
   "description": "Next-generation build tool using Rollup and ESBuild",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "index.js",
   "bin": {
     "roll": "./run"
@@ -12,6 +12,7 @@
     "test:dev": "cd test && ../run dev",
     "test:build": "cd test && ../run build"
   },
+  "homepage": "https://github.com/tangibleinc/tangible-roller",
   "repository": "git@github.com:tangibleinc/tangible-roller.git",
   "license": "MIT",
   "dependencies": {

@@ -11,6 +11,7 @@ module.exports = {
     },
   ],
   serve: {
-    dir: '.'
+    dir: '.',
+    node: 'server.js'
   }
 }

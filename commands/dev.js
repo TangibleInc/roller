@@ -34,7 +34,7 @@ async function dev(config, inputOptions, outputOptions) {
     switch (code) {
     case 'BUNDLE_START':
 
-      console.log('..From', path.relative(rootDir, input))
+      console.log('..Building from', path.relative(rootDir, input))
 
       break
     case 'BUNDLE_END':

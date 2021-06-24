@@ -1,8 +1,8 @@
 function help() {
 
-  const { version } = require('../package.json')
+  const { version, homepage } = require('../package.json')
 
-  console.log(`Tangible Roller ${version}
+  console.log(`Tangible Roller ${version} - ${homepage}
 
 Usage: roll [command]
 

@@ -10,7 +10,7 @@ async function build(config, inputOptions, outputOptions) {
 
   const { rootDir } = config
 
-  console.log('..From', path.relative(rootDir, inputOptions.input))
+  console.log('..Building from', path.relative(rootDir, inputOptions.input))
 
   const startTime = new Date()
 

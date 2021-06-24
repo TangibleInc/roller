@@ -1,7 +1,9 @@
 const path = require('path')
 const fs = require('fs')
 
-function createConfig() {
+function createConfig({
+  commandName
+}) {
 
   const rootDir = process.cwd()
 
@@ -9,6 +11,8 @@ function createConfig() {
   const packageJsonPath = path.join(rootDir, 'package.json')
 
   if ( ! fs.existsSync(configJsPath) ) {
+
+    if (commandName==='help') return // No message for help screen
 
     console.log(`
 Please create a configuration file named tangible.config.js
@@ -27,6 +31,8 @@ module.exports = {
     },
   ]
 }
+
+For details, visit ${ require('../package.json').homepage }
 `
     )
 

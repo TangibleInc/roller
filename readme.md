@@ -57,10 +57,51 @@ module.exports = {
 }
 ```
 
-The `build` property is an array of tasks. Each task has the following properties:
+### Build
+
+The required config property `build` is an array of tasks.
+
+Each task has the following properties:
 
 - `src` - Source file with extension `js`, `ts`, `tsx`, or `scss`
 - `dest` - Destination file with extension `min.js`, or `min.css`
+
+
+#### React mode
+
+The optional task property `react` sets the React mode.
+
+Its value is one of:
+
+- `react` (default) - Files with JSX will automatically import React
+- `preact` - Import `react` and `react-dom` are aliased to `preact/compat`
+- `wp` - Import `react` and `react-dom` are aliased to global variable `wp.element`
+
+
+#### Aliases
+
+The following optional task properties perform various substitutions.
+
+- `alias` - Map import module name to target module name or file path
+- `importToGlobal` - Map import module name to global variable name
+- `globalToImport` - Map global variable name to import module name
+- `replaceStrings` - Map string to another string
+
+
+### Serve
+
+If an optional config property `serve` is defined, a static file server is started during the `dev` or `serve` command.
+
+It is an object with:
+
+- `dir` - Serve from directory - Relative path such as `.`
+- `port` - Serve from port - Optional: default is `3000`
+
+To start your own server, define the `node` property.
+
+- `node` - Require script file path
+
+This can be used with or without the `dir` property.
 
 
 ## Usage

@@ -13,8 +13,19 @@ async function serve(config) {
 
   const {
     dir = '.',
-    port = 3000
+    port = 3000,
+    node // Require script file path
   } = serveOptions
+
+  if (node) {
+
+    require( path.join(rootDir, node) )
+
+    if (!serveOptions.dir) {
+      // Use instead of default static file server
+      return
+    }
+  }
 
   // https://github.com/zeit/serve-handler#options
   const handlerOptions = {
@@ -37,7 +48,11 @@ async function serve(config) {
   }
 
   server.listen(availablePort, () => {
-    console.log('Server listening at', `http://localhost:${availablePort}`)
+    console.log(`..Serving ${
+      dir==='.'
+        ? 'current directory'
+        : 'directory '+dir
+    } at`, `http://localhost:${availablePort}`)
   })
 
 }
