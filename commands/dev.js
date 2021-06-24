@@ -8,8 +8,6 @@ const path = require('path')
 const rollup = require('rollup')
 const onExit = require('../utils/onExit')
 
-let watchingMessageDone = false
-
 async function dev(config, inputOptions, outputOptions) {
 
   const { rootDir } = config
@@ -35,13 +33,17 @@ async function dev(config, inputOptions, outputOptions) {
 
     switch (code) {
     case 'BUNDLE_START':
-      console.log('Building', path.relative(rootDir, input))
+
+      console.log('..From', path.relative(rootDir, input))
+
       break
     case 'BUNDLE_END':
+
       console.log('Built',
         output.map(f => path.relative(rootDir, f)).join(', '),
         'in', (duration / 1000).toFixed(2)+'s'
       )
+
       break
     case 'ERROR':
       console.log(e.error)
@@ -50,11 +52,6 @@ async function dev(config, inputOptions, outputOptions) {
     // START, END
     }
   })
-
-  if ( ! watchingMessageDone ) {
-    watchingMessageDone = true
-    console.log('Watching files for changes..')
-  }
 }
 
 module.exports = dev

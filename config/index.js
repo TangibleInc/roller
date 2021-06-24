@@ -30,7 +30,7 @@ module.exports = {
 `
     )
 
-    // TODO: Option to create it automatically and explain task schema
+    // TODO: Option to create it automatically
 
     process.exit()
     return
@@ -46,14 +46,18 @@ module.exports = {
   } = packageJson
 
   const {
-    build: tasks = []
+    build: tasks = [],
+    serve
   } = tangibleConfig
 
 
   return {
     rootDir,
-    name, dependencies, devDependencies,
+    name,
+    dependencies,
+    devDependencies,
     tasks,
+    serve
   }
 }
 

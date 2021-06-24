@@ -1,13 +1,16 @@
 function help() {
 
-  console.log(`Tangible Roller
+  const { version } = require('../package.json')
 
-Usage: tgr [command]
+  console.log(`Tangible Roller ${version}
+
+Usage: roll [command]
 
 Commands:
 
   dev     Build for development and watch files for changes
   build   Build for production
+  serve   Start static file server
 `
   )
 }

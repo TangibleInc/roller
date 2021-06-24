@@ -9,11 +9,13 @@ Next-generation build tool using [Rollup](https://rollupjs.org/guide/en/) and [E
 
 ## Install
 
+Install in your project as a dependency for development.
+
 ```sh
 npm install --save-dev @tangible/roller
 ```
 
-This provides a local command called `tgr`.
+This provides a local command called `roll`, which can be run using `npm` or `npx`.
 
 
 ## Prepare
@@ -23,8 +25,8 @@ Add the following scripts in your project's `package.json` file.
 ```json
 {
   "scripts": {
-    "dev": "tgr dev",
-    "build": "tgr build"
+    "dev": "roll dev",
+    "build": "roll build"
   }
 }
 ```
@@ -44,11 +46,11 @@ Example:
 module.exports = {
   build: [
     {
-      src: 'index.js',
+      src: 'src/index.js',
       dest: 'build/test.min.js'
     },
     {
-      src: 'index.scss',
+      src: 'src/index.scss',
       dest: 'build/test.min.css'
     },
   ]
@@ -80,7 +82,7 @@ npm run build
 Use `npx`, which is bundled with Node.js, to run other builder commands.
 
 ```
-npx tgr [command]
+npx roll [command]
 ```
 
 Run the above without any command to see a help screen.

@@ -7,19 +7,27 @@
 
 const path = require('path')
 
-const esbuild = require('rollup-plugin-esbuild')
-
-const { nodeResolve } = require('@rollup/plugin-node-resolve')
-const nodePolyfills = require('rollup-plugin-node-polyfills')
-const commonjs = require('@rollup/plugin-commonjs')
 const alias = require('@rollup/plugin-alias')
-
 const autoprefixer = require('autoprefixer')
-const postcss = require('rollup-plugin-postcss')
+const commonjs = require('@rollup/plugin-commonjs')
 const del = require('rollup-plugin-delete')
+const esbuild = require('rollup-plugin-esbuild')
+const externalGlobals = require('rollup-plugin-external-globals')
+const inject = require('@rollup/plugin-inject')
+const nodePolyfills = require('rollup-plugin-node-polyfills')
+const { nodeResolve } = require('@rollup/plugin-node-resolve')
+const postcss = require('rollup-plugin-postcss')
+const replace = require('@rollup/plugin-replace')
 
-// https://github.com/csstools/postcss-sass/pull/27 - https://github.com/sinankeskin/postcss-sass.git
-const sass = require('@csstools/postcss-sass')
+/**
+ * Currently using a fork of @csstools/postcss-sass for compatibility with
+ * PostCSS 8. When upstream publishes a new version to NPM, this can be replaced
+ * along with its dependencies: @csstools/sass-import-resolve, sass, source-map
+ *
+ * @see https://github.com/csstools/postcss-sass/pull/27#issuecomment-792735459
+ * @see https://github.com/sinankeskin/postcss-sass/blob/master/index.cjs.js
+ */
+const sass = require('../plugins/postcss-sass')
 
 
 const supportedTaskTypes = ['js', 'sass']
@@ -49,34 +57,113 @@ function createTaskConfigs(config, task) {
   const { rootDir } = config
 
 
-  // Provide list of directories for resolving modules
+  // Directories for resolving modules
 
   const moduleDirectories = [
     ...(task.root
       ? (
-        Array.isArray(task.root) ? task.root : [task.root]
+        Array.isArray(task.root)
+          ? task.root
+          : [task.root]
       ).map(f => path.resolve(f))
       : []
     ),
     path.join(rootDir, 'node_modules')
   ]
 
+
   // Aliases: { moduleName: targetFilePath }
 
-  const aliases = !task.alias ? {} : Object.keys(task.alias).reduce((obj, key) => {
+  const aliases = task.alias
+    ? Object.keys(task.alias).reduce((obj, key) => {
 
-    let target = task.alias[key]
+      let target = task.alias[key]
 
-    if (target[0]==='.') {
-      target = path.join(rootDir, target)
-    }
+      // Transform relative to absolute path
+      if (target[0]==='.') {
+        target = path.join(rootDir, target)
+      }
 
-    // TODO: if no file extension, append ".js"
+      obj[key] = target
 
-    obj[key] = target
+      return obj
+    }, {})
+    : {}
 
-    return obj
-  }, {})
+
+  // Transform imports into global variables
+
+  const importToGlobal = task.importToGlobal
+    ? Object.assign({}, task.importToGlobal)
+    : {}
+
+  // Transform global variables into import statements
+
+  const globalToImport = task.globalToImport
+    ? Object.assign({}, task.globalToImport)
+    : {}
+
+  // Replace strings
+
+  const replaceStrings = Object.assign({
+
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+
+    // Silence warning from plugin about default value (true) in next version
+    preventAssignment: true,
+
+  }, task.replaceStrings
+    ? Object.keys(task.replaceStrings).reduce((obj, key) => {
+
+      // Convert values to JSON string
+
+      obj[key] = JSON.stringify( task.replaceStrings[key] )
+
+      return obj
+    }, {})
+    : {}
+  )
+
+
+  // React
+
+  // Mode: react, preact, wp
+  let reactMode = task.react
+    ? task.react.toLowerCase()
+    : 'react'
+
+  // For backward compatibility with @tangible/builder
+  if (reactMode==='wp.element') reactMode = 'wp'
+
+  // Global variable name for React
+  const reactGlobal = reactMode!=='wp'
+    ? 'React'
+    : 'wp.element'
+
+  // JSX transforms
+  const jsxFactory  = `${reactGlobal}.createElement`
+  const jsxFragment = `${reactGlobal}.Fragment`
+
+  // Provide default aliases for Preact
+  if (reactMode==='preact' && !aliases.react) {
+    Object.assign(aliases, {
+      react: 'preact/compat',
+      'react-dom': 'preact/compat',
+    })
+  }
+
+  if (reactMode==='wp') {
+
+    // https://developer.wordpress.org/block-editor/reference-guides/packages/packages-element/
+
+    Object.assign(importToGlobal, {
+      react: 'wp.element',
+      'react-dom': 'wp.element'
+    })
+
+  } else {
+    globalToImport.React = ['react', '*'] // import * as React from 'react'
+  }
 
 
   // Input options
@@ -117,6 +204,8 @@ function createTaskConfigs(config, task) {
           entries: aliases
         }),
 
+        replace( replaceStrings ),
+
         // https://github.com/rollup/plugins/tree/master/packages/node-resolve
         nodeResolve({
           moduleDirectories,
@@ -128,20 +217,21 @@ function createTaskConfigs(config, task) {
 
         // https://github.com/egoist/rollup-plugin-esbuild
         esbuild({
-          // All options are optional
-          include: /\.[jt]sx?$/, // default, inferred from `loaders` option
-          exclude: /node_modules/, // default
-          sourceMap: true, // default: false
-          minify: process.env.NODE_ENV !== 'development',
+
+          include: /\.[jt]sx?$/,
+          exclude: /node_modules/,
+
           target: 'es2017', // default, or 'es20XX', 'esnext'
-          jsx: 'transform', // default, or 'preserve'
-          jsxFactory: 'React.createElement',
-          jsxFragment: 'React.Fragment',
-          // Like @rollup/plugin-replace
-          define: {
-            'process': '{ "env": {} }',
-          },
+
+          sourceMap: true,
+          minify: process.env.NODE_ENV !== 'development',
+
+          jsx: 'transform',
+          jsxFactory,
+          jsxFragment,
+
           tsconfig: 'tsconfig.json', // default
+
           // Add extra loaders
           loaders: {
             // Add .json files support
@@ -151,6 +241,27 @@ function createTaskConfigs(config, task) {
             '.js': 'jsx',
           },
         }),
+
+        /**
+         * Transform imports into global variables
+         */
+        ...(Object.keys(importToGlobal).length
+          ? [externalGlobals( importToGlobal )]
+          : []
+        ),
+
+        /**
+         * Transform global variables into import statements
+         *
+         * For React, it serves as an auto-import when JSX is used.
+         *
+         * - The plugin can't parse JSX, so it must come after esbuild.
+         * - If target import has an alias, such as for Preact, it is
+         * correctly transformed.
+         *
+         * @see https://github.com/rollup/plugins/tree/master/packages/inject
+         */
+        inject( globalToImport ),
 
         commonjs({
           // include: /node_modules/

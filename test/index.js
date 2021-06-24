@@ -1,13 +1,6 @@
-const React = {
-  createElement(...args) {
-    return args
-  },
-  render(...args) {
-    console.log('React.render', ...args)
-  }
-}
+import * as ReactDOM from 'react-dom'
 
 const Test = () =>
   <div>Hello world</div>
 
-React.render(<Test />)
+ReactDOM.render(<Test />, document.getElementById('root'))

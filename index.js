@@ -13,6 +13,12 @@ if (['dev', 'build'].indexOf( commandName ) >= 0) {
 
   process.env.NODE_ENV = commandName==='dev' ? 'development' : 'production'
 
+  console.log('Build for', process.env.NODE_ENV)
+
+  if (commandName==='dev' && config.serve) {
+    require('./commands/serve')(config)
+  }
+
   // Run command for each task
 
   const { tasks } = config

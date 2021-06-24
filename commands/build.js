@@ -4,12 +4,13 @@
 
 const path = require('path')
 const rollup = require('rollup')
+const getFileSize = require('../utils/getFileSize')
 
 async function build(config, inputOptions, outputOptions) {
 
   const { rootDir } = config
 
-  console.log('Building', path.relative(rootDir, inputOptions.input))
+  console.log('..From', path.relative(rootDir, inputOptions.input))
 
   const startTime = new Date()
 
@@ -21,15 +22,22 @@ async function build(config, inputOptions, outputOptions) {
     await bundle.close()
 
   } catch(e) {
-    console.log(e.message)
+    console.log(
+      // Inspect error object from rollup plugin
+      e.plugin ? e : e.message
+    )
   }
 
 
   const duration = new Date() - startTime
+  const builtFile = outputOptions.file.replace(/\.tmp$/, '')
+  const fileSize = await getFileSize(builtFile)
 
   console.log('Built',
-    outputOptions.file.replace(/\.tmp$/, ''),
-    'in', (duration / 1000).toFixed(2)+'s'
+    builtFile,
+    'in',
+    (duration / 1000).toFixed(2)+'s',
+    `(${fileSize})`
   )
 
 }
