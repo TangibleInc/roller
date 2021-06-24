@@ -7,6 +7,7 @@
     "tgr": "./run"
   },
   "scripts": {
+    "release": "npm publish --access public",
     "test": "cd test && ../run",
     "test:dev": "cd test && ../run dev",
     "test:build": "cd test && ../run build"
