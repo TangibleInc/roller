@@ -22,9 +22,10 @@ async function build(config, inputOptions, outputOptions) {
     await bundle.close()
 
   } catch(e) {
+    // Same format as in ./dev
     console.log(
-      // Inspect error object from rollup plugin
-      e.plugin ? e : e.message
+      (e.plugin ? `[${e.plugin}] `+e.message : e.message)
+        .replace(rootDir, '.')
     )
   }
 

@@ -46,7 +46,13 @@ async function dev(config, inputOptions, outputOptions) {
 
       break
     case 'ERROR':
-      console.log(e.error)
+      // Same format as in ./build
+      console.log(
+        (e.error.plugin ? `[${e.error.plugin}] `+e.error.message : e.error.message)
+          .replace(rootDir, '.')
+      )
+
+      // console.log(e.error)
       break
 
     // START, END
