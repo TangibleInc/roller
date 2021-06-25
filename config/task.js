@@ -14,6 +14,7 @@ const del = require('rollup-plugin-delete')
 const esbuild = require('rollup-plugin-esbuild')
 const externalGlobals = require('rollup-plugin-external-globals')
 const inject = require('@rollup/plugin-inject')
+const json = require('@rollup/plugin-json')
 const nodePolyfills = require('rollup-plugin-node-polyfills')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const postcss = require('rollup-plugin-postcss')
@@ -189,7 +190,8 @@ function createTaskConfigs(config, task) {
           extract: path.join(rootDir, task.dest ),
           plugins: [
             sass({
-              includePaths: ['node_modules']
+              includePaths: ['node_modules'],
+
             }),
             autoprefixer
           ]
@@ -226,6 +228,10 @@ function createTaskConfigs(config, task) {
           sourceMap: true,
           minify: process.env.NODE_ENV !== 'development',
 
+          // Optionally preserve symbol names during minification
+          // https://esbuild.github.io/api/#keep-names
+          keepNames: task.keepNames != null ? task.keepNames : false,
+
           jsx: 'transform',
           jsxFactory,
           jsxFragment,
@@ -236,7 +242,7 @@ function createTaskConfigs(config, task) {
           loaders: {
             // Add .json files support
             // require @rollup/plugin-commonjs
-            // '.json': 'json',
+            '.json': 'json',
             // Enable JSX in .js files too
             '.js': 'jsx',
           },
@@ -262,6 +268,8 @@ function createTaskConfigs(config, task) {
          * @see https://github.com/rollup/plugins/tree/master/packages/inject
          */
         inject( globalToImport ),
+
+        json(),
 
         commonjs({
           // include: /node_modules/
