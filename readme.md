@@ -18,25 +18,9 @@ npm install --save-dev @tangible/roller
 This provides a local command called `roll`, which can be run using `npm` or `npx`.
 
 
-## Prepare
-
-Add the following scripts in your project's `package.json` file.
-
-```json
-{
-  "scripts": {
-    "dev": "roll dev",
-    "build": "roll build"
-  }
-}
-```
-
-These can be run from the terminal when you're inside the project folder.  See the [Usage](#usage) section below for more description.
+## Config
 
 Before starting, the builder needs a configuration file.
-
-
-## Config
 
 Create a file called `tangible.config.js` in your project folder.
 
@@ -73,9 +57,11 @@ The optional task property `react` sets the React mode.
 
 Its value is one of:
 
-- `react` (default) - Files with JSX will automatically import React
+- `react` (default)
 - `preact` - Import `react` and `react-dom` are aliased to `preact/compat`
 - `wp` - Import `react` and `react-dom` are aliased to global variable `wp.element`
+
+Files with JSX will automatically import `React`.
 
 
 #### Aliases
@@ -102,6 +88,22 @@ To start your own server, define the `node` property.
 - `node` - Require script file path
 
 This can be used with or without the `dir` property.
+
+
+## Scripts
+
+Add the following scripts in your project's `package.json` file.
+
+```json
+{
+  "scripts": {
+    "dev": "roll dev",
+    "build": "roll build"
+  }
+}
+```
+
+These can be run from the terminal when you're inside the project folder.
 
 
 ## Usage
