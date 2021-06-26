@@ -176,13 +176,15 @@ function createTaskConfigs(config, task) {
 
         // For https://github.com/Anidetrix/rollup-plugin-styles
         styles({
-          mode: 'extract', //, ['extract', path.relative(path.dirname(task.dest), task.dest)],
+          mode: 'extract',
           minimize: isDev ? false : true,
+
           sourceMap: true,
+          // Sass loader options
+          // https://anidetrix.github.io/rollup-plugin-styles/interfaces/loaders_sass.sassloaderoptions.html
           sass: {
             includePaths: ['node_modules'],
-            sourceMap: true,
-            outFile: destFullPath
+            impl: require.resolve('sass'), // Implementation: Use included Dart Sass
           },
           plugins: [autoprefixer]
         }),
