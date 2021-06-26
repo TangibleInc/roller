@@ -55,8 +55,12 @@ function createTaskConfigs(config, task) {
     return
   }
 
-  const { rootDir } = config
+  const {
+    rootDir,
+    env // Same as process.env.NODE_ENV but allow override
+  } = config
 
+  const isDev = env==='development'
 
   // Directories for resolving modules
 
@@ -108,7 +112,7 @@ function createTaskConfigs(config, task) {
 
   const replaceStrings = Object.assign({
 
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    'process.env.NODE_ENV': JSON.stringify( env ),
 
     // Silence warning from plugin about default value (true) in next version
     preventAssignment: true,
@@ -232,7 +236,7 @@ function createTaskConfigs(config, task) {
           target: 'es2017', // default, or 'es20XX', 'esnext'
 
           sourceMap: true,
-          minify: process.env.NODE_ENV !== 'development',
+          minify: ! isDev,
 
           // Optionally preserve symbol names during minification
           // https://esbuild.github.io/api/#keep-names

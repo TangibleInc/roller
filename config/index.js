@@ -58,6 +58,7 @@ For details, visit ${ require('../package.json').homepage }
 
   return {
     rootDir,
+    env: process.env.NODE_ENV,
     name,
     dependencies,
     devDependencies,
