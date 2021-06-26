@@ -1,12 +1,12 @@
 module.exports = {
   build: [
     {
-      src: 'index.js',
+      src: 'src/index.js',
       dest: 'build/test.min.js',
       react: 'preact' // react, preact, wp
     },
     {
-      src: 'index.scss',
+      src: 'src/index.scss',
       dest: 'build/test.min.css'
     },
   ],
