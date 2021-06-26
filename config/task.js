@@ -186,8 +186,11 @@ function createTaskConfigs(config, task) {
         // https://stackoverflow.com/questions/53653434/is-it-possible-to-use-rollup-for-processing-just-css/55481806#55481806
         postcss({
           minimize: true,
-          sourceMap: true,
-          extract: destFullPath,
+
+          // During development, inline is faster to load with source
+          sourceMap: isDev ? 'inline' : true,
+          extract: task.dest,
+
           plugins: [
             sass({
 
