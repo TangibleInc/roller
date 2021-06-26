@@ -183,12 +183,6 @@ function createTaskConfigs(config, task) {
 
         // Plugins for SASS
 
-        // Remove temporary JS file
-        del({
-          targets: task.dest + '.tmp',
-          hook: 'closeBundle'
-        }),
-
         // https://stackoverflow.com/questions/53653434/is-it-possible-to-use-rollup-for-processing-just-css/55481806#55481806
         postcss({
           minimize: true,
@@ -205,7 +199,13 @@ function createTaskConfigs(config, task) {
             }),
             autoprefixer
           ]
-        })
+        }),
+
+        // Remove temporary JS file
+        del({
+          targets: task.dest + '.tmp',
+          hook: 'closeBundle'
+        }),
       ]
 
       : [
