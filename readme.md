@@ -1,6 +1,9 @@
 # Tangible Roller
 
-Next-generation build tool using [Rollup](https://rollupjs.org/guide/en/) and [ESBuild](https://esbuild.github.io/)
+> Next-generation build tool using [Rollup](https://rollupjs.org/guide/en/) and [ESBuild](https://esbuild.github.io/)
+
+The main purpose of this tool is to compile a set of JavaScript/TypeScript and SASS files into minified bundles with source maps.
+
 
 ## Requirement
 
@@ -41,6 +44,12 @@ module.exports = {
 }
 ```
 
+The config file exports an object with the following properties.
+
+- [`build`](#build) - Array of build tasks
+- [`serve`](#serve) - Optional: Server config
+
+
 ### Build
 
 The required config property `build` is an array of tasks.
@@ -48,7 +57,7 @@ The required config property `build` is an array of tasks.
 Each task has the following properties:
 
 - `src` - Source file with extension `js`, `ts`, `tsx`, or `scss`
-- `dest` - Destination file with extension `min.js`, or `min.css`
+- `dest` - Destination file with extension `min.js` or `min.css`
 
 
 #### React mode
@@ -58,8 +67,8 @@ The optional task property `react` sets the React mode.
 Its value is one of:
 
 - `react` (default)
-- `preact` - Import `react` and `react-dom` are aliased to `preact/compat`
-- `wp` - Import `react` and `react-dom` are aliased to global variable `wp.element`
+- `preact` - Import modules `react` and `react-dom` are aliased to `preact/compat`
+- `wp` - Import modules `react` and `react-dom` are aliased to global variable `wp.element`
 
 Files with JSX will automatically import `React`.
 
@@ -76,7 +85,7 @@ The following optional task properties perform various substitutions.
 
 ### Serve
 
-If an optional config property `serve` is defined, a static file server is started during the `dev` or `serve` command.
+If an optional config property `serve` is defined, a static file server is started during the `dev` and `serve` command.
 
 It is an object with:
 
