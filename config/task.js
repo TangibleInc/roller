@@ -7,6 +7,7 @@
 
 const path = require('path')
 
+// Rollup plugins
 const alias = require('@rollup/plugin-alias')
 const autoprefixer = require('autoprefixer')
 const commonjs = require('@rollup/plugin-commonjs')
@@ -17,18 +18,8 @@ const inject = require('@rollup/plugin-inject')
 const json = require('@rollup/plugin-json')
 const nodePolyfills = require('rollup-plugin-node-polyfills')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
-const postcss = require('rollup-plugin-postcss')
 const replace = require('@rollup/plugin-replace')
-
-/**
- * Currently using a fork of @csstools/postcss-sass for compatibility with
- * PostCSS 8. When upstream publishes a new version to NPM, this can be replaced
- * along with its dependencies: @csstools/sass-import-resolve, sass, source-map
- *
- * @see https://github.com/csstools/postcss-sass/pull/27#issuecomment-792735459
- * @see https://github.com/sinankeskin/postcss-sass/blob/master/index.cjs.js
- */
-const sass = require('../plugins/postcss-sass')
+const styles = require('rollup-plugin-styles')
 
 
 const supportedTaskTypes = ['js', 'sass']
@@ -183,25 +174,17 @@ function createTaskConfigs(config, task) {
 
         // Plugins for SASS
 
-        // https://stackoverflow.com/questions/53653434/is-it-possible-to-use-rollup-for-processing-just-css/55481806#55481806
-        postcss({
-          minimize: true,
-
-          // During development, inline is faster to load with source
-          sourceMap: isDev ? 'inline' : true,
-          extract: task.dest,
-
-          plugins: [
-            sass({
-
-              // https://github.com/sass/node-sass#options
-
-              includePaths: ['node_modules'],
-              sourceMap: true,
-              outFile: destFullPath
-            }),
-            autoprefixer
-          ]
+        // For https://github.com/Anidetrix/rollup-plugin-styles
+        styles({
+          mode: 'extract', //, ['extract', path.relative(path.dirname(task.dest), task.dest)],
+          minimize: isDev ? false : true,
+          sourceMap: true,
+          sass: {
+            includePaths: ['node_modules'],
+            sourceMap: true,
+            outFile: destFullPath
+          },
+          plugins: [autoprefixer]
         }),
 
         // Remove temporary JS file
@@ -260,9 +243,9 @@ function createTaskConfigs(config, task) {
             // Add .json files support - require @rollup/plugin-json
             '.json': 'json',
 
-            // Consider CSS/SASS modules with postcss({ modules: true })
-            // '.css': 'css',
-            // '.scss': 'scss',
+            // CSS/SASS modules - TODO: Options for styles plugin?
+            '.css': 'css',
+            '.scss': 'scss',
           },
         }),
 
@@ -311,6 +294,9 @@ function createTaskConfigs(config, task) {
     sourcemap: task.task==='sass' ? false : true,
     sourcemapFile: task.dest + '.map',
     format: task.task==='sass' ? 'es' : 'iife',
+
+    // For styles plugin
+    assetFileNames: task.task==='sass' ? '[name]' : '',
   }
 
   return [inputOptions, outputOptions]
