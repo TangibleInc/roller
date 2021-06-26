@@ -40,7 +40,9 @@ async function dev(config, inputOptions, outputOptions) {
     case 'BUNDLE_END':
 
       console.log('Built',
-        output.map(f => path.relative(rootDir, f)).join(', '),
+        output.map(f =>
+          path.relative(rootDir, f.replace(/\.tmp$/, ''))
+        ).join(', '),
         'in', (duration / 1000).toFixed(2)+'s'
       )
 

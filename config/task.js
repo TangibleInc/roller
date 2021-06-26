@@ -167,6 +167,8 @@ function createTaskConfigs(config, task) {
   }
 
 
+  const destFullPath = path.join(rootDir, task.dest )
+
   // Input options
 
   const inputOptions = {
@@ -187,11 +189,15 @@ function createTaskConfigs(config, task) {
         postcss({
           minimize: true,
           sourceMap: true,
-          extract: path.join(rootDir, task.dest ),
+          extract: destFullPath,
           plugins: [
             sass({
-              includePaths: ['node_modules'],
 
+              // https://github.com/sass/node-sass#options
+
+              includePaths: ['node_modules'],
+              sourceMap: true,
+              outFile: destFullPath
             }),
             autoprefixer
           ]
@@ -240,11 +246,16 @@ function createTaskConfigs(config, task) {
 
           // Add extra loaders
           loaders: {
-            // Add .json files support
-            // require @rollup/plugin-commonjs
-            '.json': 'json',
-            // Enable JSX in .js files too
+
+            // Enable JSX in .js files
             '.js': 'jsx',
+
+            // Add .json files support - require @rollup/plugin-json
+            '.json': 'json',
+
+            // Consider CSS/SASS modules with postcss({ modules: true })
+            // '.css': 'css',
+            // '.scss': 'scss',
           },
         }),
 

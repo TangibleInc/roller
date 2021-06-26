@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs')
+const readline = require('readline')
 
 function createConfig({
   commandName
@@ -23,11 +24,11 @@ module.exports = {
   build: [
     {
       src:  'src/index.js',
-      dest: 'build/index.min.js',
+      dest: 'build/app.min.js',
     },
     {
       src:  'src/index.scss',
-      dest: 'build/index.min.css',
+      dest: 'build/app.min.css',
     },
   ]
 }
@@ -35,8 +36,6 @@ module.exports = {
 For details, visit ${ require('../package.json').homepage }
 `
     )
-
-    // TODO: Option to create it automatically
 
     process.exit()
     return

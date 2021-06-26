@@ -34,11 +34,11 @@ module.exports = {
   build: [
     {
       src: 'src/index.js',
-      dest: 'build/test.min.js'
+      dest: 'build/app.min.js'
     },
     {
       src: 'src/index.scss',
-      dest: 'build/test.min.css'
+      dest: 'build/app.min.css'
     },
   ]
 }
