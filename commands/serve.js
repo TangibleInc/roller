@@ -8,7 +8,8 @@ async function serve({
 }) {
 
   const {
-    rootDir
+    rootDir,
+    isDev,
   } = config
 
   const serveOptions = config.serve || {}
@@ -21,7 +22,28 @@ async function serve({
 
   if (node) {
 
-    require( path.join(rootDir, node) )
+    const scriptPath = path.join(rootDir, node)
+
+    /**
+     * Use nodemon for reloadable server - Previously: require( scriptPath )
+     * @see https://github.com/remy/nodemon/blob/main/doc/requireable.md
+     */
+
+    const nodemon = require('nodemon')
+
+    nodemon({
+      script: scriptPath,
+      watch: serveOptions.watch || false,
+    })
+
+    console.log(`..Running custom server from ${path.relative(rootDir, scriptPath)} - Enter rs to reload`)
+
+    if (!isDev) {
+      // Necessary to prevent error after SIGTERM exit
+      nodemon.on('quit', function () {
+        process.exit()
+      })
+    }
 
     if (!serveOptions.dir) {
       // Use instead of default static file server
@@ -46,7 +68,7 @@ async function serve({
   const availablePort = await getPort({ port: getPort.makeRange(port, port + 100) })
 
   if (serveOptions.port && parseInt(serveOptions.port) !== availablePort) {
-    console.log(`..Port ${serveOptions.port} is busy: serving from ${availablePort}`)
+    console.log(`..Port ${serveOptions.port} is busy - Using ${availablePort}`)
   }
 
   server.listen(availablePort, () => {

@@ -25,6 +25,7 @@
     "autoprefixer": "^10.2.6",
     "esbuild": "^0.12.9",
     "get-port": "^5.1.1",
+    "nodemon": "^2.0.12",
     "postcss": "^8.3.5",
     "rollup": "^2.52.2",
     "rollup-plugin-delete": "^2.0.0",
