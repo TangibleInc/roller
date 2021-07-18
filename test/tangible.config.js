@@ -11,7 +11,11 @@ module.exports = {
     },
     {
       src: 'src/index.html',
-      dest: 'build',
+      dest: 'build/index.html',
+    },
+    {
+      src: 'src/child/**/index.html',
+      dest: 'build/child',
     },
   ],
   serve: {
