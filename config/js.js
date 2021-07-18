@@ -8,7 +8,7 @@ const esbuild = require('rollup-plugin-esbuild')
 const externalGlobals = require('rollup-plugin-external-globals')
 const inject = require('@rollup/plugin-inject')
 const json = require('@rollup/plugin-json')
-// const nodePolyfills = require('rollup-plugin-node-polyfills')
+const polyfillNode = require('rollup-plugin-polyfill-node')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const replace = require('@rollup/plugin-replace')
 
@@ -145,7 +145,7 @@ function createOptionsForTaskType(config, task) {
         preferBuiltins: true
       }),
 
-      // nodePolyfills(),
+      polyfillNode(),
 
       // https://github.com/egoist/rollup-plugin-esbuild
       esbuild({
