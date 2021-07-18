@@ -9,9 +9,13 @@ module.exports = {
       src: 'src/index.scss',
       dest: 'build/test.min.css'
     },
+    {
+      src: 'src/index.html',
+      dest: 'build',
+    },
   ],
   serve: {
-    dir: '.',
+    dir: 'build',
     node: 'server.js'
   }
 }

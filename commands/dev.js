@@ -17,6 +17,11 @@ async function dev(props) {
     outputOptions
   } = props
 
+  // Custom build task
+  if (inputOptions.build) {
+    return await inputOptions.build(props)
+  }
+
   const { rootDir } = config
 
   const watcher = rollup.watch({

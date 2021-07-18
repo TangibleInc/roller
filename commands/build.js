@@ -15,6 +15,11 @@ async function build(props) {
     outputOptions
   } = props
 
+  // Custom build task
+  if (inputOptions.build) {
+    return await inputOptions.build(props)
+  }
+
   const { rootDir } = config
 
   console.log('..Building from', path.relative(rootDir, inputOptions.input))

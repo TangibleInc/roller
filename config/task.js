@@ -7,8 +7,8 @@
 
 const path = require('path')
 
+const supportedTaskTypes = ['js', 'sass', 'html']
 
-const supportedTaskTypes = ['js', 'sass']
 function createTaskConfigs({
   config,
   task
@@ -20,14 +20,13 @@ function createTaskConfigs({
 
     const extension = task.src.split('.').pop()
 
-    if (extension==='scss') {
-
-      task.task = 'sass'
-
-    } else if (['js', 'jsx', 'ts', 'tsx'].indexOf(extension) >= 0) {
-
-      task.task = 'js'
-    }
+    task.task = extension==='scss'
+      ? 'sass'
+      : extension==='html'
+        ? 'html'
+        : ['js', 'jsx', 'ts', 'tsx'].indexOf(extension) >= 0
+          ? 'js'
+          : undefined
   }
 
   if ( supportedTaskTypes.indexOf(task.task) < 0 ) {
