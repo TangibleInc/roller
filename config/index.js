@@ -56,12 +56,18 @@ For details, visit ${ require('../package.json').homepage }
   } = tangibleConfig
 
 
+  const env = process.env.NODE_ENV
+  const isDev = env==='development'
+
   return {
     rootDir,
-    env: process.env.NODE_ENV,
+    env,
+    isDev,
+
     name,
     dependencies,
     devDependencies,
+
     tasks,
     serve
   }
