@@ -8,7 +8,14 @@ const path = require('path')
 const rollup = require('rollup')
 const onExit = require('../utils/onExit')
 
-async function dev(config, inputOptions, outputOptions) {
+async function dev(props) {
+
+  const {
+    config,
+    task,
+    inputOptions,
+    outputOptions
+  } = props
 
   const { rootDir } = config
 

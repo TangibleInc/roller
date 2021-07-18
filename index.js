@@ -22,7 +22,7 @@ if (['dev', 'build'].indexOf( commandName ) >= 0) {
     console.log('..Watching files for changes - Press CTRL+C to exit')
 
     if (config.serve) {
-      require('./commands/serve')(config)
+      require('./commands/serve')({ config })
     }
   }
 
@@ -32,14 +32,18 @@ if (['dev', 'build'].indexOf( commandName ) >= 0) {
 
   Promise.all(tasks.map(function(task) {
 
-    const taskConfigs = createTaskConfigs(config, task)
+    const taskConfigs = createTaskConfigs({ config, task })
 
     if ( ! taskConfigs ) {
-      console.log(`Task type "${task.task}" not supported`)
+      console.log(`Task not supported:`, task.src)
       return
     }
 
-    return runCommand(config, ...taskConfigs)
+    return runCommand({
+      config,
+      task,
+      ...taskConfigs
+    })
       .catch(console.log)
 
   }))
@@ -49,5 +53,5 @@ if (['dev', 'build'].indexOf( commandName ) >= 0) {
 
   // Other commands
 
-  runCommand(config)
+  runCommand({ config })
 }

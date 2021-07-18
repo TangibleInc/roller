@@ -6,7 +6,14 @@ const path = require('path')
 const rollup = require('rollup')
 const getFileSize = require('../utils/getFileSize')
 
-async function build(config, inputOptions, outputOptions) {
+async function build(props) {
+
+  const {
+    config,
+    task,
+    inputOptions,
+    outputOptions
+  } = props
 
   const { rootDir } = config
 

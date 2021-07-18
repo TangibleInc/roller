@@ -3,7 +3,9 @@ const http = require('http')
 const getPort = require('get-port')
 const handler = require('serve-handler')
 
-async function serve(config) {
+async function serve({
+  config,
+}) {
 
   const {
     rootDir

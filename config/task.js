@@ -23,8 +23,10 @@ const styles = require('rollup-plugin-styles')
 
 
 const supportedTaskTypes = ['js', 'sass']
-
-function createTaskConfigs(config, task) {
+function createTaskConfigs({
+  config,
+  task
+}) {
 
   if (!task.task && task.src) {
 
@@ -301,7 +303,10 @@ function createTaskConfigs(config, task) {
     assetFileNames: task.task==='sass' ? '[name]' : '',
   }
 
-  return [inputOptions, outputOptions]
+  return {
+    inputOptions,
+    outputOptions
+  }
 }
 
 module.exports = createTaskConfigs
