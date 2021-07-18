@@ -72,7 +72,7 @@ async function serve({
   }
 
   server.listen(availablePort, () => {
-    console.log(`..Serving ${
+    console.log(`Serve ${
       dir==='.'
         ? 'current directory'
         : 'directory '+dir

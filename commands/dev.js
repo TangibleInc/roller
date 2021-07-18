@@ -36,11 +36,11 @@ async function dev(props) {
     watcher.close()
   })
 
-  // This will make sure that bundles are properly closed after each run
   watcher.on('event', (e) => {
 
     const { code, result, input, output, duration } = e
 
+    // This will make sure that bundles are properly closed after each run
     if (result) result.close()
 
     switch (code) {
