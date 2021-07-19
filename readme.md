@@ -56,8 +56,8 @@ The required config property `build` is an array of tasks.
 
 Each task has the following properties:
 
-- `src` - Source file with extension `js`, `ts`, `tsx`, or `scss`
-- `dest` - Destination file with extension `min.js` or `min.css`
+- `src` - Source file with extension `js`, `ts`, `tsx`, `scss`, or `html`
+- `dest` - Destination file with extension `min.js`, `min.css`, or `html`
 
 
 #### React mode
@@ -82,6 +82,12 @@ The following optional task properties perform various substitutions.
 - `globalToImport` - Map global variable name to import module name
 - `replaceStrings` - Map string to another string
 
+#### HTML
+
+HTML files are compiled using a template engine called [`eta`](https://eta.js.org/). Visit the link for its documentation.
+
+For the HTML build task, the `src` property can be a single file name or [glob syntax](https://github.com/isaacs/node-glob#glob-primer) for multiple files. In the latter case, the `dest` property must specify the destination directory name. (It can be also for single file.)
+
 
 ### Serve
 
@@ -101,7 +107,7 @@ This can be used with or without the `dir` property.
 
 ## Scripts
 
-Add the following scripts in your project's `package.json` file.
+Add the following NPM scripts in your project's `package.json` file.
 
 ```json
 {
