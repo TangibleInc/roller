@@ -1,7 +1,7 @@
 {
   "name": "@tangible/roller",
   "description": "Next-generation build tool using Rollup and ESBuild",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "index.js",
   "bin": {
     "roll": "./run"
