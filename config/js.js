@@ -145,6 +145,10 @@ function createOptionsForTaskType(config, task) {
         preferBuiltins: true
       }),
 
+      commonjs({
+        // include: /node_modules/
+      }),
+
       polyfillNode(),
 
       // https://github.com/egoist/rollup-plugin-esbuild
@@ -206,9 +210,6 @@ function createOptionsForTaskType(config, task) {
 
       json(),
 
-      commonjs({
-        // include: /node_modules/
-      }),
     ]
   }
 
