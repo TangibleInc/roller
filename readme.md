@@ -1,8 +1,8 @@
 # Tangible Roller
 
-> Next-generation build tool using [Rollup](https://rollupjs.org/guide/en/) and [ESBuild](https://esbuild.github.io/)
+> Build project assets using [Rollup](https://rollupjs.org/guide/en/) and [ESBuild](https://esbuild.github.io/)
 
-The main purpose of this tool is to compile a set of JavaScript/TypeScript and SASS files into minified bundles with source maps.
+The purpose of this tool is to compile a set of JavaScript/TypeScript, SASS, HTML and other files into minified bundles with source maps.
 
 
 ## Requirement
