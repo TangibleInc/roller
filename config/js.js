@@ -145,14 +145,15 @@ function createOptionsForTaskType(config, task) {
       nodeResolve({
         moduleDirectories,
         browser: true,
-        preferBuiltins: true
+        // Following option must be *false* for polyfill to work
+        preferBuiltins: false
       }),
 
-      commonjs({
-        // include: /node_modules/
+      // https://github.com/snowpackjs/rollup-plugin-polyfill-node
+      polyfillNode({
+        // include: null, // Transform Node.js builtins in all files
+        sourceMap: true,
       }),
-
-      polyfillNode(),
 
       // https://github.com/egoist/rollup-plugin-esbuild
       esbuild({
@@ -212,6 +213,10 @@ function createOptionsForTaskType(config, task) {
       inject( globalToImport ),
 
       json(),
+
+      commonjs({
+        // include: /node_modules/
+      }),
 
     ]
   }
