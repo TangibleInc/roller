@@ -67,24 +67,27 @@ function createOptionsForTaskType(config, task) {
 
   // Replace strings
 
-  const replaceStrings = Object.assign({
+  const values = {
+    'process.env.NODE_ENV': JSON.stringify( env )
+  }
 
-    'process.env.NODE_ENV': JSON.stringify( env ),
+  if (task.replaceStrings) {
+    for (const key of Object.keys(task.replaceStrings)) {
+      values[key] = JSON.stringify(
+        task.replaceStrings[key] instanceof Function
+          ? task.replaceStrings[key]()
+          : task.replaceStrings[key]
+      )
+    }
+  }
+
+  const replaceStrings = {
 
     // Silence warning from plugin about default value (true) in next version
     preventAssignment: true,
 
-  }, task.replaceStrings
-    ? Object.keys(task.replaceStrings).reduce((obj, key) => {
-
-      // Convert values to JSON string
-
-      obj[key] = JSON.stringify( task.replaceStrings[key] )
-
-      return obj
-    }, {})
-    : {}
-  )
+    values
+  }
 
 
   // React
