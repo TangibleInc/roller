@@ -11,6 +11,7 @@ const json = require('@rollup/plugin-json')
 const polyfillNode = require('rollup-plugin-polyfill-node')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const replace = require('@rollup/plugin-replace')
+const injectProcessEnv = require('rollup-plugin-inject-process-env')
 
 function createOptionsForTaskType(config, task) {
 
@@ -67,12 +68,17 @@ function createOptionsForTaskType(config, task) {
 
   // Replace strings
 
-  const values = {
-    'process.env.NODE_ENV': JSON.stringify( env )
+  const processEnv = {
+    'NODE_ENV': env
   }
+  const values = {}
 
   if (task.replaceStrings) {
     for (const key of Object.keys(task.replaceStrings)) {
+      if (key==='process.env') {
+        Object.assign(processEnv, task.replaceStrings[key])
+        continue
+      }
       values[key] = JSON.stringify(
         task.replaceStrings[key] instanceof Function
           ? task.replaceStrings[key]()
@@ -82,10 +88,8 @@ function createOptionsForTaskType(config, task) {
   }
 
   const replaceStrings = {
-
     // Silence warning from plugin about default value (true) in next version
     preventAssignment: true,
-
     values
   }
 
@@ -135,8 +139,17 @@ function createOptionsForTaskType(config, task) {
 
       // Plugins for JavaScript
 
+      // CommonJS plugin must be early in the list
+      commonjs({
+        // include: /node_modules/
+      }),
+
       alias({
         entries: aliases
+      }),
+
+      injectProcessEnv({
+        env: processEnv,
       }),
 
       replace( replaceStrings ),
@@ -213,10 +226,6 @@ function createOptionsForTaskType(config, task) {
       inject( globalToImport ),
 
       json(),
-
-      commonjs({
-        // include: /node_modules/
-      }),
 
     ]
   }
