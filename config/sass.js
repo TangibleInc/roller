@@ -45,6 +45,11 @@ function createOptionsForTaskType(config, task) {
           includePaths: moduleDirectories, // ['node_modules'],
           impl: require.resolve('sass'), // Implementation: Use included Dart Sass
         },
+        // https://anidetrix.github.io/rollup-plugin-styles/interfaces/types.options.html
+        // https://anidetrix.github.io/rollup-plugin-styles/interfaces/loaders_postcss_url.urloptions.html
+        url: {
+          inline: true
+        },
         plugins: [autoprefixer]
       }),
 
