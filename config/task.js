@@ -61,6 +61,7 @@ function createTaskConfigs({
   // Output options
 
   const outputOptions = {
+    // name: task.name,
     file: task.task==='sass'
       ? (task.dest + '.tmp') // PostCSS emits its own file
       : task.dest

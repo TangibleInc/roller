@@ -1,7 +1,10 @@
 {
   "name": "@tangible/roller",
+  "version": "1.2.4",
   "description": "Build project assets using Rollup and ESBuild",
-  "version": "1.2.2",
+  "homepage": "https://github.com/tangibleinc/tangible-roller",
+  "repository": "git@github.com:tangibleinc/tangible-roller.git",
+  "license": "MIT",
   "main": "index.js",
   "bin": {
     "roll": "./run"
@@ -12,9 +15,6 @@
     "test:dev": "cd test && ../run dev",
     "test:build": "cd test && ../run build"
   },
-  "homepage": "https://github.com/tangibleinc/tangible-roller",
-  "repository": "git@github.com:tangibleinc/tangible-roller.git",
-  "license": "MIT",
   "dependencies": {
     "@rollup/plugin-alias": "^3.1.5",
     "@rollup/plugin-commonjs": "^21.0.0",
