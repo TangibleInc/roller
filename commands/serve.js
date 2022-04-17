@@ -1,6 +1,6 @@
 const path = require('path')
 const http = require('http')
-const getPort = require('get-port')
+const getPort = require('../utils/getPort')
 const handler = require('serve-handler')
 
 async function serve({
@@ -65,7 +65,7 @@ async function serve({
   )
 
 
-  const availablePort = await getPort({ port: getPort.makeRange(port, port + 100) })
+  const availablePort = await getPort({ port: getPort.portNumbers(port, port + 100) })
 
   if (serveOptions.port && parseInt(serveOptions.port) !== availablePort) {
     console.log(`..Port ${serveOptions.port} is busy - Using ${availablePort}`)

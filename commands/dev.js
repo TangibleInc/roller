@@ -7,6 +7,7 @@
 const path = require('path')
 const rollup = require('rollup')
 const onExit = require('../utils/onExit')
+const displayError = require('../utils/displayError')
 
 async function dev(props) {
 
@@ -38,7 +39,7 @@ async function dev(props) {
 
   watcher.on('event', (e) => {
 
-    const { code, result, input, output, duration } = e
+    const { code, result, input, output, duration, error } = e
 
     // This will make sure that bundles are properly closed after each run
     if (result) result.close()
@@ -61,12 +62,7 @@ async function dev(props) {
       break
     case 'ERROR':
       // Same format as in ./build
-      console.log(
-        (e.error.plugin ? `[${e.error.plugin}] `+e.error.message : e.error.message)
-          .replace(rootDir, '.')
-      )
-
-      // console.log(e.error)
+      displayError(error, config)
       break
 
     // START, END

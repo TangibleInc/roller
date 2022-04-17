@@ -5,6 +5,7 @@
 const path = require('path')
 const rollup = require('rollup')
 const getFileSize = require('../utils/getFileSize')
+const displayError = require('../utils/displayError')
 
 async function build(props) {
 
@@ -35,10 +36,7 @@ async function build(props) {
 
   } catch(e) {
     // Same format as in ./dev
-    console.log(
-      (e.plugin ? `[${e.plugin}] `+e.message : e.message)
-        .replace(rootDir, '.')
-    )
+    displayError(e, config)
   }
 
 

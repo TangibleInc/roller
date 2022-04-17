@@ -8,5 +8,4 @@ ReactDOM.render(<Test />, document.getElementById('root'))
 
 console.log('React', React)
 console.log('ReactDOM', ReactDOM)
-
 console.log('JSON', json)
