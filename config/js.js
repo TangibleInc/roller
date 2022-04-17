@@ -1,10 +1,9 @@
-
 const path = require('path')
 
 // Rollup plugins
 const alias = require('@rollup/plugin-alias')
 const commonjs = require('@rollup/plugin-commonjs')
-const esbuild = require('rollup-plugin-esbuild')
+const esbuild = require('rollup-plugin-esbuild').default
 const externalGlobals = require('rollup-plugin-external-globals')
 const inject = require('@rollup/plugin-inject')
 const json = require('@rollup/plugin-json')
@@ -139,10 +138,7 @@ function createOptionsForTaskType(config, task) {
 
       // Plugins for JavaScript
 
-      // CommonJS plugin must be early in the list
-      commonjs({
-        // include: /node_modules/
-      }),
+      json(),
 
       alias({
         entries: aliases
@@ -205,8 +201,16 @@ function createOptionsForTaskType(config, task) {
       }),
 
       /**
-         * Transform imports into global variables
-         */
+       * CommonJS plugin moved from top of list to after ESBuild,
+       * so it supports JSX in files with .js file extension
+       */
+      commonjs({
+        // include: /node_modules/
+      }),
+
+      /**
+       * Transform imports into global variables
+       */
       ...(Object.keys(importToGlobal).length
         ? [externalGlobals( importToGlobal )]
         : []
@@ -224,8 +228,6 @@ function createOptionsForTaskType(config, task) {
          * @see https://github.com/rollup/plugins/tree/master/packages/inject
          */
       inject( globalToImport ),
-
-      json(),
 
     ]
   }
