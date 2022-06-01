@@ -100,13 +100,20 @@ function createOptionsForTaskType(config, task) {
     ? task.react.toLowerCase()
     : 'react'
 
+  if (reactMode.indexOf('window.')===0) {
+    importToGlobal.react = reactMode.replace('window.', '')
+    reactMode = 'react'
+  }
+
   // For backward compatibility with @tangible/builder
   if (reactMode==='wp.element') reactMode = 'wp'
 
   // Global variable name for React
-  const reactGlobal = reactMode!=='wp'
-    ? 'React'
-    : 'wp.element'
+  const reactGlobal = importToGlobal.react
+    ? importToGlobal.react
+    : reactMode!=='wp'
+      ? 'React'
+      : 'wp.element'
 
   // JSX transforms
   const jsxFactory  = `${reactGlobal}.createElement`
@@ -129,8 +136,17 @@ function createOptionsForTaskType(config, task) {
       'react-dom': 'wp.element'
     })
 
+  } else if (importToGlobal.react) {
+    /**
+     * Replace import 'react' with global variable
+     * Ensure react-dom is aliased to the same, unless specified
+     */
+    if (!importToGlobal['react-dom']) {
+      importToGlobal['react-dom'] = importToGlobal.react
+    }
   } else {
-    globalToImport.React = ['react', '*'] // import * as React from 'react'
+    // import * as React from 'react'
+    globalToImport.React = ['react', '*']
   }
 
   return {

@@ -71,12 +71,22 @@ async function serve({
     console.log(`..Port ${serveOptions.port} is busy - Using ${availablePort}`)
   }
 
-  server.listen(availablePort, () => {
-    console.log(`Serve ${
-      dir==='.'
-        ? 'current directory'
-        : 'directory '+dir
-    } at`, `http://localhost:${availablePort}`)
+  return await new Promise((resolve, reject) => {
+
+    let firstTime = true
+
+    server.listen(availablePort, () => {
+      console.log(`Serve ${
+        dir==='.'
+          ? 'current directory'
+          : 'directory '+dir
+      } at`, `http://localhost:${availablePort}`)
+
+      if (firstTime) {
+        firstTime = false
+        resolve()
+      }
+    })
   })
 
 }

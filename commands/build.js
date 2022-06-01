@@ -45,10 +45,9 @@ async function build(props) {
   const fileSize = await getFileSize(builtFile)
 
   console.log('Built',
-    builtFile,
-    'in',
-    (duration / 1000).toFixed(2)+'s',
-    `(${fileSize})`
+    builtFile
+    // , 'in', (duration / 1000).toFixed(2)+'s'
+    , `(${fileSize})`
   )
 
 }

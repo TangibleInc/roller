@@ -7,29 +7,20 @@
 
 const path = require('path')
 
-const supportedTaskTypes = ['js', 'sass', 'html']
+const supportedTaskTypes = {
+  js:     require('./js'),
+  sass:   require('./sass'),
+  html:   require('./html'),
+  copy:   require('./copy'),
+  custom: require('./custom'),
+}
 
 function createTaskConfigs({
   config,
   task
 }) {
 
-  if (!task.task && task.src) {
-
-    // Determine task type from src file extension
-
-    const extension = task.src.split('.').pop()
-
-    task.task = extension==='scss'
-      ? 'sass'
-      : extension==='html'
-        ? 'html'
-        : ['js', 'jsx', 'ts', 'tsx'].indexOf(extension) >= 0
-          ? 'js'
-          : undefined
-  }
-
-  if ( supportedTaskTypes.indexOf(task.task) < 0 ) {
+  if ( ! supportedTaskTypes[task.task] ) {
     return
   }
 
@@ -39,7 +30,12 @@ function createTaskConfigs({
     isDev
   } = config
 
-  const createOptionsForTaskType =require(`./${task.task}`)
+  const createOptionsForTaskType = supportedTaskTypes[task.task]
+
+  if (!task.src || !task.dest) return {
+    inputOptions: createOptionsForTaskType(config, task),
+    outputOptions: {}
+  }
 
   const destFullPath = path.join(rootDir, task.dest )
 

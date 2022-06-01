@@ -15,7 +15,8 @@ async function dev(props) {
     config,
     task,
     inputOptions,
-    outputOptions
+    outputOptions,
+    reloader
   } = props
 
   // Custom build task
@@ -25,48 +26,64 @@ async function dev(props) {
 
   const { rootDir } = config
 
-  const watcher = rollup.watch({
-    ...inputOptions,
-    output: [outputOptions],
-    watch: {
-      exclude: /node_modules/,
-    }
-  })
+  return await new Promise((resolve, reject) => {
 
-  onExit(function() {
-    watcher.close()
-  })
+    const watcher = rollup.watch({
+      ...inputOptions,
+      output: [outputOptions],
+      watch: {
+        exclude: /node_modules/,
+      }
+    })
 
-  watcher.on('event', (e) => {
+    onExit(function() {
+      watcher.close()
+    })
 
-    const { code, result, input, output, duration, error } = e
+    let firstTime = true
 
-    // This will make sure that bundles are properly closed after each run
-    if (result) result.close()
+    watcher.on('event', (e) => {
 
-    switch (code) {
-    case 'BUNDLE_START':
+      const { code, result, input, output, duration, error } = e
 
-      console.log('..Building from', path.relative(rootDir, input))
+      // This will make sure that bundles are properly closed after each run
+      if (result) result.close()
 
-      break
-    case 'BUNDLE_END':
+      switch (code) {
+      case 'BUNDLE_START':
 
-      console.log('Built',
-        output.map(f =>
-          path.relative(rootDir, f.replace(/\.tmp$/, ''))
-        ).join(', '),
-        'in', (duration / 1000).toFixed(2)+'s'
-      )
+        console.log('..Building from', path.relative(rootDir, input))
 
-      break
-    case 'ERROR':
-      // Same format as in ./build
-      displayError(error, config)
-      break
+        break
+      case 'BUNDLE_END':
 
-    // START, END
-    }
+        console.log('Built',
+          output.map(f =>
+            path.relative(rootDir, f.replace(/\.tmp$/, ''))
+          ).join(', ')
+          // , 'in', (duration / 1000).toFixed(2)+'s'
+        )
+
+        if (firstTime) {
+          firstTime = false
+          resolve()
+          return
+        }
+        if (task.task==='sass') {
+          reloader.reloadCSS()
+        } else {
+          reloader.reload()
+        }
+        break
+      case 'ERROR':
+        // Same format as in ./build
+        displayError(error, config)
+        break
+
+      // START, END
+      }
+    })
+
   })
 }
 

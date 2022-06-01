@@ -6,13 +6,23 @@ const eta = require('eta')
 const chokidar = require('chokidar')
 // const getFileSize = require('../utils/getFileSize')
 
+let reloaderClient
+
+const getReloaderClient = async () =>
+  reloaderClient = `<script>${
+    await fsp.readFile(
+      path.join(__dirname, '../lib/reloader/client.js'), 'utf8'
+    )
+  }</script>`
+
 async function buildHTML(props) {
 
   const {
     config,
     task,
     inputOptions,
-    outputOptions
+    outputOptions,
+    reloader
   } = props
 
   const {
@@ -92,21 +102,43 @@ async function buildHTML(props) {
     return
   }
 
-  async function buildFile(file, log = false) {
+  let firstTime = true
+
+  async function buildFile(file, logStart = true, logEnd = true) {
 
     let fileStartTime
 
-    if (log) {
-      fileStartTime = new Date()
+    if (logStart) {
       console.log('..Building from', path.relative(rootDir, file))
+    }
+    if (logEnd) {
+      fileStartTime = new Date()
     }
 
     // https://eta.js.org/docs/syntax/async
-    const content = await eta.render(
+    let content = await eta.render(
       await fsp.readFile(file, 'utf8'),
       templateData,
       { async: true }
     )
+
+    /**
+     * Reloader client
+     */
+    if (reloader && reloader.active) {
+      if (!reloaderClient) {
+        reloaderClient = await getReloaderClient()
+      }
+      const clientInstance = reloaderClient.replace(
+        '%WEBSOCKET_PORT%',
+        reloader.port
+      )
+      if (content.indexOf('</body>') >= 0) {
+        content = content.replace('</body>', clientInstance+'</body>')
+      } else {
+        content += clientInstance
+      }
+    }
 
     const destFileFullPath = path.join(
       destDir,
@@ -123,19 +155,26 @@ async function buildHTML(props) {
 
     await fsp.writeFile(destFileFullPath, content)
 
-    if (log) {
+    if (logEnd) {
 
       const duration = new Date() - fileStartTime
 
-      console.log('Built', path.relative(rootDir, destFileFullPath), 'in',
-        (duration / 1000).toFixed(2)+'s'
+      console.log('Built', path.relative(rootDir, destFileFullPath)
+        // , 'in', (duration / 1000).toFixed(2)+'s'
       )
     }
+
+    if (isDev && !firstTime) reloader.reload()
   }
 
-  for (const file of files) {
-    await buildFile(file)
-  }
+  // Build in parallel
+  await Promise.all(files.map(f => buildFile(f, false)))
+  firstTime = false
+
+  // Previously:
+  // for (const file of files) {
+  //   await buildFile(file)
+  // }
 
 
   // Done
@@ -145,7 +184,7 @@ async function buildHTML(props) {
     hasNestedSrcDirs ? '/**/*.html' : ('/' + (destFileName || '*.html'))
   )
 
-  console.log('Built', builtResult, 'in', (duration / 1000).toFixed(2)+'s')
+  // console.log('Built', builtResult, 'in', (duration / 1000).toFixed(2)+'s')
 
 
   if (!isDev) return
@@ -157,8 +196,8 @@ async function buildHTML(props) {
   })
 
   watcher
-    .on('add', file => buildFile(file, true))
-    .on('change', file => buildFile(file, true))
+    .on('add', file => buildFile(file))
+    .on('change', file => buildFile(file))
     .on('unlink', file => {
       // Remove destination file?
     })
@@ -166,4 +205,6 @@ async function buildHTML(props) {
 
 }
 
-module.exports = () => ({ build: buildHTML })
+module.exports = () => ({
+  build: buildHTML
+})

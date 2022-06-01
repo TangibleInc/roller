@@ -17,6 +17,15 @@ module.exports = {
       src: 'src/child/**/index.html',
       dest: 'build/child',
     },
+    {
+      task: 'copy',
+      src: 'public',
+      dest: 'build',
+    },
+    async function({ config, task = {} }) {
+      console.log('Custom build function')
+    }
+
   ],
   serve: {
     dir: 'build',
