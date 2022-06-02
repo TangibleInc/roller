@@ -15,6 +15,8 @@ function createConfig({
 
     if (commandName==='help') return // No message for help screen
 
+    // TODO: Provide a command to create new config
+
     console.log(`
 Please create a configuration file named tangible.config.js
 
@@ -33,7 +35,7 @@ module.exports = {
   ]
 }
 
-For details, visit ${ require('../package.json').homepage }
+Documentation: ${ require('../package.json').homepage }
 `
     )
 
@@ -41,7 +43,7 @@ For details, visit ${ require('../package.json').homepage }
     return
   }
 
-  const tangibleConfig = require(configJsPath)
+  const configJson = require(configJsPath)
   const packageJson = fs.existsSync(packageJsonPath) ? require(packageJsonPath) : {}
 
   const {
@@ -52,8 +54,10 @@ For details, visit ${ require('../package.json').homepage }
 
   const {
     build: tasks = [],
+    format,
+    lint,
     serve
-  } = tangibleConfig
+  } = configJson
 
 
   const env = process.env.NODE_ENV
@@ -69,6 +73,8 @@ For details, visit ${ require('../package.json').homepage }
     devDependencies,
 
     tasks,
+    format,
+    lint,
     serve
   }
 }

@@ -7,20 +7,16 @@
 
 const path = require('path')
 
-const supportedTaskTypes = {
-  js:     require('./js'),
-  sass:   require('./sass'),
-  html:   require('./html'),
-  copy:   require('./copy'),
-  custom: require('./custom'),
-}
+const supportedTaskTypes = [
+  'js', 'sass', 'html', 'copy', 'custom',
+]
 
 function createTaskConfigs({
   config,
   task
 }) {
 
-  if ( ! supportedTaskTypes[task.task] ) {
+  if (supportedTaskTypes.indexOf(task.task) < 0) {
     return
   }
 
@@ -30,7 +26,7 @@ function createTaskConfigs({
     isDev
   } = config
 
-  const createOptionsForTaskType = supportedTaskTypes[task.task]
+  const createOptionsForTaskType = require(`./${task.task}`)
 
   if (!task.src || !task.dest) return {
     inputOptions: createOptionsForTaskType(config, task),

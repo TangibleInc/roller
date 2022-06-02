@@ -1,19 +1,10 @@
 const path = require('path')
 const fsp = require('fs').promises
 
-const glob = require('glob')
+const glob = require('fast-glob')
 const eta = require('eta')
 const chokidar = require('chokidar')
 // const getFileSize = require('../utils/getFileSize')
-
-let reloaderClient
-
-const getReloaderClient = async () =>
-  reloaderClient = `<script>${
-    await fsp.readFile(
-      path.join(__dirname, '../lib/reloader/client.js'), 'utf8'
-    )
-  }</script>`
 
 async function buildHTML(props) {
 
@@ -91,10 +82,8 @@ async function buildHTML(props) {
 
   // Get and transform files
 
-  const files = await new Promise((resolve, reject) => {
-    glob(srcFullPath, {}, function (err, files) {
-      err ? reject(err) : resolve(files)
-    })
+  const files = await glob(srcFullPath, {
+    // https://github.com/mrmlnc/fast-glob#options-3
   })
 
   if (!files.length) {
@@ -116,23 +105,52 @@ async function buildHTML(props) {
     }
 
     // https://eta.js.org/docs/syntax/async
-    let content = await eta.render(
-      await fsp.readFile(file, 'utf8'),
-      templateData,
-      { async: true }
-    )
 
-    /**
-     * Reloader client
-     */
-    if (reloader && reloader.active) {
-      if (!reloaderClient) {
-        reloaderClient = await getReloaderClient()
+    const dirPath = path.dirname(file)
+
+    async function include(target) {
+
+      // console.log('Include file', target)
+
+      // Resolve relative file path
+      const filePath = path.resolve( dirPath, target )
+
+      let content = ''
+      try {
+        content = await fsp.readFile(filePath, 'utf8')
+      } catch(e) {
+        console.log('Error building template', path.relative(rootDir, file))
+        console.error(e.message)
       }
-      const clientInstance = reloaderClient.replace(
+      return content
+    }
+
+    let content = ''
+    try {
+      content = await eta.render(
+        await fsp.readFile(file, 'utf8'),
+        templateData,
+        {
+          async: true,
+          include
+        }
+      )
+    } catch(e) {
+      console.error(e)
+      return
+    }
+
+    if (reloader && reloader.active) {
+
+      /**
+       * Reloader client from lib/reloader/client.js
+       */
+
+      const clientInstance = reloader.clientScript.replace(
         '%WEBSOCKET_PORT%',
         reloader.port
       )
+
       if (content.indexOf('</body>') >= 0) {
         content = content.replace('</body>', clientInstance+'</body>')
       } else {

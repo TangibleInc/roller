@@ -1,5 +1,5 @@
 const path = require('path')
-const glob = require('glob')
+const glob = require('fast-glob')
 const fs = require('fs-extra')
 
 module.exports = () => ({
@@ -34,14 +34,11 @@ module.exports = () => ({
       // OK
     }
 
-    const files = await new Promise((resolve, reject) => {
-      glob(srcPath, {
-        cwd: rootDir,
-        nodir: true, // Match files only
-        follow: true // Follow symlinked directories
-      }, function (err, files) {
-        err ? reject(err) : resolve(files)
-      })
+    const files = await glob(srcPath, {
+      // https://github.com/mrmlnc/fast-glob#options-3
+      cwd: rootDir,
+      onlyFiles: true,
+      followSymbolicLinks: true
     })
 
     if (!files.length) {

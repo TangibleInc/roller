@@ -2,12 +2,19 @@ const createConfig = require('./config')
 const createTaskConfigs = require('./task')
 const createReloader = require('./lib/reloader')
 
-run( process.argv.slice(2)[0] || 'help' )
-  .catch(console.error)
+const supportedCommands = [
+  'build', 'dev', 'format', 'help', 'lint', 'serve'
+]
 
-async function run(commandName) {
+;(async function run(commandName) {
+
+  if (supportedCommands.indexOf(commandName) < 0) {
+    commandName = 'help'
+  }
 
   const runCommand = require(`./commands/${commandName}`)
+
+  if (!runCommand instanceof Function) return
 
   process.env.NODE_ENV = commandName==='dev' ? 'development' : 'production'
 
@@ -17,8 +24,7 @@ async function run(commandName) {
 
   if (['dev', 'build'].indexOf( commandName ) < 0) {
     // Other commands
-    runCommand({ config })
-    return
+    return runCommand({ config })
   }
 
   console.log('Build for', process.env.NODE_ENV)
@@ -80,23 +86,25 @@ async function run(commandName) {
   }))
     .then(async function() {
 
-      if (commandName==='dev') {
+      // All tasks done
 
-        if (reloader.active) {
-          reloader.startServer()
-        }
+      if (commandName!=='dev') return
 
-        if (config.serve) {
-          await require('./commands/serve')({
-            config,
-            reloader
-          })
-        }
-
-        console.log('..Watching files for changes - Press CTRL+C to exit')
+      if (reloader.active) {
+        reloader.startServer()
       }
+
+      if (config.serve) {
+        await require('./commands/serve')({
+          config,
+          reloader
+        })
+      }
+
+      console.log('..Watching files for changes - Press CTRL+C to exit')
     })
     .catch(console.log)
 
-
-}
+})(
+  process.argv.slice(2)[0] || 'help'
+).catch(console.error)

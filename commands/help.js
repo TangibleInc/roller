@@ -6,7 +6,7 @@ function help() {
     description
   } = require('../package.json')
 
-  console.log(`Tangible Roller ${version} - ${homepage}
+  console.log(`Tangible Roller ${version}
 
 ${description}
 
@@ -17,6 +17,9 @@ Commands:
   dev     Build for development and watch files for changes
   build   Build for production
   serve   Start static file server
+  format  Format source code to standard
+
+Documentation: ${homepage}
 `
   )
 }

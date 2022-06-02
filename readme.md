@@ -29,7 +29,8 @@ Add the following NPM scripts in your project's `package.json` file.
 {
   "scripts": {
     "dev": "roll dev",
-    "build": "roll build"
+    "build": "roll build",
+    "format": "roll format"
   }
 }
 ```
@@ -95,10 +96,12 @@ The config file exports an object with the following properties.
 
 The required config property `build` is an array of tasks.
 
-Each task has the following properties:
+Each task is an object with the following properties:
 
 - `src` - Source file with extension `js`, `jsx`, `ts`, `tsx`, `scss`, or `html`
 - `dest` - Destination file with extension `min.js`, `min.css`, or `html`
+
+During development, the source files are watched for any changes, and rebuilt as needed.
 
 
 #### React mode

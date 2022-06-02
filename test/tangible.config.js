@@ -27,6 +27,7 @@ module.exports = {
     }
 
   ],
+  format: 'src',
   serve: {
     dir: 'build',
     node: 'server.js'

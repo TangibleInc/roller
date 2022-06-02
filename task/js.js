@@ -34,12 +34,24 @@ function createOptionsForTaskType(config, task) {
     path.join(rootDir, 'node_modules')
   ]
 
+  // Transform imports into global variables
+
+  const importToGlobal = task.importToGlobal
+    ? Object.assign({}, task.importToGlobal)
+    : {}
+
   // Aliases: { moduleName: targetFilePath }
 
   const aliases = task.alias
     ? Object.keys(task.alias).reduce((obj, key) => {
 
       let target = task.alias[key]
+
+      // Shortcut to alias import to global variable
+      if (target.indexOf('window.')===0) {
+        importToGlobal[key] = target.replace('window.', '')
+        return
+      }
 
       // Transform relative to absolute path
       if (target[0]==='.') {
@@ -52,12 +64,6 @@ function createOptionsForTaskType(config, task) {
     }, {})
     : {}
 
-
-  // Transform imports into global variables
-
-  const importToGlobal = task.importToGlobal
-    ? Object.assign({}, task.importToGlobal)
-    : {}
 
   // Transform global variables into import statements
 
@@ -96,13 +102,13 @@ function createOptionsForTaskType(config, task) {
   // React
 
   // Mode: react, preact, wp
-  let reactMode = task.react
-    ? task.react.toLowerCase()
-    : 'react'
+  let reactMode = task.react || 'react'
 
   if (reactMode.indexOf('window.')===0) {
     importToGlobal.react = reactMode.replace('window.', '')
     reactMode = 'react'
+  } else {
+    reactMode = reactMode.toLowerCase()
   }
 
   // For backward compatibility with @tangible/builder
