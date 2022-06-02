@@ -48,26 +48,14 @@ async function format({
 }) {
 
   if (!config.format) {
+    const {
+      homepage,
+    } = require('../package.json')
+
     console.log(
 `Format command requires the "format" property in the config file
 
-It is a string or an array of path patterns to match. Use * as wildcard, ** to match any directory levels, and ! to exclude pattern. Use {} and a comma-separated list to match multiple items.
-
-Example - All files in directory
-
-format: 'src'
-
-Example - Static site
-
-format: 'src/**/*.{html,js,scss}'
-
-Example - Plugin
-
-format: [
-  'assets/src/**/*.{js,scss}',
-  '**/*.php',
-  '!vendor/**'
-]
+Documentation: ${homepage}#format
 `
 )
     return

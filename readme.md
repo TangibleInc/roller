@@ -52,6 +52,12 @@ npm run dev
 npm run build
 ```
 
+**Format files to code standard**
+
+```sh
+npm run format
+```
+
 **Other commands**
 
 Use `npx`, which is bundled with Node.js, to run other builder commands.
@@ -82,7 +88,8 @@ module.exports = {
       src: 'src/index.scss',
       dest: 'build/app.min.css'
     },
-  ]
+  ],
+  format: 'src'
 }
 ```
 
@@ -90,6 +97,7 @@ The config file exports an object with the following properties.
 
 - [`build`](#build) - Array of build tasks
 - [`serve`](#serve) - Optional: Server config
+- [`format`](#format) - Optional: Format config
 
 
 ### Build
@@ -147,3 +155,34 @@ To start your own server, define the `node` property.
 - `node` - Require script file path
 
 This can be used with or without the `dir` property.
+
+
+### Format
+
+Run the `format` command to automatically format files to code standard.
+
+It requires the config property `format`, which is a string or an array of path patterns to match.
+
+Use `*` as wildcard, `**` to match any directory levels, and `!` to exclude pattern. Use `{}` and a comma-separated list to match multiple items.
+
+#### Example: All files in directory
+
+```
+format: 'src'
+```
+
+#### Example: Static site
+
+```
+format: 'src/**/*.{html,js,scss}'
+```
+
+#### Example - Plugin
+
+```
+format: [
+  'assets/src/**/*.{js,scss}',
+  '**/*.php',
+  '!**/vendor/**'
+]
+```

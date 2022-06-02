@@ -17,7 +17,7 @@ Commands:
   dev     Build for development and watch files for changes
   build   Build for production
   serve   Start static file server
-  format  Format source code to standard
+  format  Format files to code standard
 
 Documentation: ${homepage}
 `
