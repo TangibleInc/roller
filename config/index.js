@@ -2,18 +2,14 @@ const path = require('path')
 const fs = require('fs')
 const readline = require('readline')
 
-function createConfig({
-  commandName
-}) {
-
+function createConfig({ commandName }) {
   const rootDir = process.cwd()
 
   const configJsPath = path.join(rootDir, 'tangible.config.js')
   const packageJsonPath = path.join(rootDir, 'package.json')
 
-  if ( ! fs.existsSync(configJsPath) ) {
-
-    if (commandName==='help') return // No message for help screen
+  if (!fs.existsSync(configJsPath)) {
+    if (commandName === 'help') return // No message for help screen
 
     // TODO: Provide a command to create new config
 
@@ -35,33 +31,24 @@ module.exports = {
   ]
 }
 
-Documentation: ${ require('../package.json').homepage }
-`
-    )
+Documentation: ${require('../package.json').homepage}
+`)
 
     process.exit()
     return
   }
 
   const configJson = require(configJsPath)
-  const packageJson = fs.existsSync(packageJsonPath) ? require(packageJsonPath) : {}
+  const packageJson = fs.existsSync(packageJsonPath)
+    ? require(packageJsonPath)
+    : {}
 
-  const {
-    name = '',
-    dependencies = {},
-    devDependencies = {}
-  } = packageJson
+  const { name = '', dependencies = {}, devDependencies = {} } = packageJson
 
-  const {
-    build: tasks = [],
-    format,
-    lint,
-    serve
-  } = configJson
-
+  const { build: tasks = [], format, lint, serve } = configJson
 
   const env = process.env.NODE_ENV
-  const isDev = env==='development'
+  const isDev = env === 'development'
 
   return {
     rootDir,
@@ -75,7 +62,7 @@ Documentation: ${ require('../package.json').homepage }
     tasks,
     format,
     lint,
-    serve
+    serve,
   }
 }
 

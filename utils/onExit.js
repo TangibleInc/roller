@@ -25,7 +25,6 @@ function exit(exit, signal) {
 }
 
 function onExit(callback) {
-
   callbacks.add(callback)
 
   if (!isRegistered) {
@@ -38,14 +37,14 @@ function onExit(callback) {
     // PM2 Cluster shutdown message. Caught to support async handlers with pm2, needed because
     // explicitly calling process.exit() doesn't trigger the beforeExit event, and the exit
     // event cannot support async handlers, since the event loop is never called after it.
-    process.on('message', message => {
+    process.on('message', (message) => {
       if (message === 'shutdown') {
         exit(true, -128)
       }
     })
   }
 
-  return function() {
+  return function () {
     callbacks.delete(callback)
   }
 }

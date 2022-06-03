@@ -3,25 +3,18 @@ const http = require('http')
 const getPort = require('../utils/getPort')
 const handler = require('serve-handler')
 
-async function serve({
-  config,
-}) {
-
-  const {
-    rootDir,
-    isDev,
-  } = config
+async function serve({ config }) {
+  const { rootDir, isDev } = config
 
   const serveOptions = config.serve || {}
 
   const {
     dir = '.',
     port = 3000,
-    node // Require script file path
+    node, // Require script file path
   } = serveOptions
 
   if (node) {
-
     const scriptPath = path.join(rootDir, node)
 
     /**
@@ -36,7 +29,12 @@ async function serve({
       watch: serveOptions.watch || false,
     })
 
-    console.log(`..Running custom server from ${path.relative(rootDir, scriptPath)} - Enter rs to reload`)
+    console.log(
+      `..Running custom server from ${path.relative(
+        rootDir,
+        scriptPath
+      )} - Enter rs to reload`
+    )
 
     if (!isDev) {
       // Necessary to prevent error after SIGTERM exit
@@ -55,7 +53,7 @@ async function serve({
   const handlerOptions = {
     public: path.join(rootDir, dir),
     symlinks: true,
-    directoryListing: true
+    directoryListing: true,
   }
 
   // Create server
@@ -64,23 +62,22 @@ async function serve({
     handler(req, res, handlerOptions)
   )
 
-
-  const availablePort = await getPort({ port: getPort.portNumbers(port, port + 100) })
+  const availablePort = await getPort({
+    port: getPort.portNumbers(port, port + 100),
+  })
 
   if (serveOptions.port && parseInt(serveOptions.port) !== availablePort) {
     console.log(`..Port ${serveOptions.port} is busy - Using ${availablePort}`)
   }
 
   return await new Promise((resolve, reject) => {
-
     let firstTime = true
 
     server.listen(availablePort, () => {
-      console.log(`Serve ${
-        dir==='.'
-          ? 'current directory'
-          : 'directory '+dir
-      } at`, `http://localhost:${availablePort}`)
+      console.log(
+        `Serve ${dir === '.' ? 'current directory' : 'directory ' + dir} at`,
+        `http://localhost:${availablePort}`
+      )
 
       if (firstTime) {
         firstTime = false
@@ -88,7 +85,6 @@ async function serve({
       }
     })
   })
-
 }
 
 module.exports = serve

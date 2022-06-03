@@ -4,22 +4,21 @@ const fs = require('fs-extra')
 
 module.exports = () => ({
   async build({ config, task = {} }) {
-
     const { src, dest } = task
     if (!src || !dest) return
 
-    const {
-      rootDir,
-      isDev
-    } = config
+    const { rootDir, isDev } = config
 
     const srcPath = path.join(rootDir, src)
     const destPath = path.join(rootDir, dest)
 
-    const done = () => console.log('Copied',
-      path.relative(rootDir, srcPath), 'to',
-      path.relative(rootDir, destPath)
-    )
+    const done = () =>
+      console.log(
+        'Copied',
+        path.relative(rootDir, srcPath),
+        'to',
+        path.relative(rootDir, destPath)
+      )
 
     let stat
     try {
@@ -30,7 +29,7 @@ module.exports = () => ({
         done()
         return
       }
-    } catch(e) {
+    } catch (e) {
       // OK
     }
 
@@ -38,7 +37,7 @@ module.exports = () => ({
       // https://github.com/mrmlnc/fast-glob#options-3
       cwd: rootDir,
       onlyFiles: true,
-      followSymbolicLinks: true
+      followSymbolicLinks: true,
     })
 
     if (!files.length) {
@@ -46,16 +45,18 @@ module.exports = () => ({
     }
 
     // Determine source directory from given glob
-    const srcDir = path.dirname(srcPath)
+    const srcDir = path
+      .dirname(srcPath)
       .split('/')
-      .filter(part => part.indexOf('*') < 0)
+      .filter((part) => part.indexOf('*') < 0)
       .join('/')
 
-    await Promise.all(files.map(file =>
-      fs.copy(file, path.join(destPath, path.relative(srcDir, file))))
-    )
-      .catch(e => console.log('Error while copying:', e.message))
+    await Promise.all(
+      files.map((file) =>
+        fs.copy(file, path.join(destPath, path.relative(srcDir, file)))
+      )
+    ).catch((e) => console.log('Error while copying:', e.message))
 
     done()
-  }
+  },
 })

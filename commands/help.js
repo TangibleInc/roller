@@ -1,10 +1,5 @@
 function help() {
-
-  const {
-    version,
-    homepage,
-    description
-  } = require('../package.json')
+  const { version, homepage, description } = require('../package.json')
 
   console.log(`Tangible Roller ${version}
 
@@ -20,8 +15,7 @@ Commands:
   format  Format files to code standard
 
 Documentation: ${homepage}
-`
-  )
+`)
 }
 
 module.exports = help

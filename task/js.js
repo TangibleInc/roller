@@ -13,25 +13,21 @@ const replace = require('@rollup/plugin-replace')
 const injectProcessEnv = require('rollup-plugin-inject-process-env')
 
 function createOptionsForTaskType(config, task) {
-
   const {
     rootDir,
     env, // Same as process.env.NODE_ENV but allow override
-    isDev
+    isDev,
   } = config
 
   // Directories for resolving modules
 
   const moduleDirectories = [
     ...(task.root
-      ? (
-        Array.isArray(task.root)
-          ? task.root
-          : [task.root]
-      ).map(f => path.resolve(f))
-      : []
-    ),
-    path.join(rootDir, 'node_modules')
+      ? (Array.isArray(task.root) ? task.root : [task.root]).map((f) =>
+          path.resolve(f)
+        )
+      : []),
+    path.join(rootDir, 'node_modules'),
   ]
 
   // Transform imports into global variables
@@ -44,26 +40,24 @@ function createOptionsForTaskType(config, task) {
 
   const aliases = task.alias
     ? Object.keys(task.alias).reduce((obj, key) => {
+        let target = task.alias[key]
 
-      let target = task.alias[key]
+        // Shortcut to alias import to global variable
+        if (target.indexOf('window.') === 0) {
+          importToGlobal[key] = target.replace('window.', '')
+          return
+        }
 
-      // Shortcut to alias import to global variable
-      if (target.indexOf('window.')===0) {
-        importToGlobal[key] = target.replace('window.', '')
-        return
-      }
+        // Transform relative to absolute path
+        if (target[0] === '.') {
+          target = path.join(rootDir, target)
+        }
 
-      // Transform relative to absolute path
-      if (target[0]==='.') {
-        target = path.join(rootDir, target)
-      }
+        obj[key] = target
 
-      obj[key] = target
-
-      return obj
-    }, {})
+        return obj
+      }, {})
     : {}
-
 
   // Transform global variables into import statements
 
@@ -74,13 +68,13 @@ function createOptionsForTaskType(config, task) {
   // Replace strings
 
   const processEnv = {
-    'NODE_ENV': env
+    NODE_ENV: env,
   }
   const values = {}
 
   if (task.replaceStrings) {
     for (const key of Object.keys(task.replaceStrings)) {
-      if (key==='process.env') {
+      if (key === 'process.env') {
         Object.assign(processEnv, task.replaceStrings[key])
         continue
       }
@@ -95,16 +89,15 @@ function createOptionsForTaskType(config, task) {
   const replaceStrings = {
     // Silence warning from plugin about default value (true) in next version
     preventAssignment: true,
-    values
+    values,
   }
-
 
   // React
 
   // Mode: react, preact, wp
   let reactMode = task.react || 'react'
 
-  if (reactMode.indexOf('window.')===0) {
+  if (reactMode.indexOf('window.') === 0) {
     importToGlobal.react = reactMode.replace('window.', '')
     reactMode = 'react'
   } else {
@@ -112,36 +105,34 @@ function createOptionsForTaskType(config, task) {
   }
 
   // For backward compatibility with @tangible/builder
-  if (reactMode==='wp.element') reactMode = 'wp'
+  if (reactMode === 'wp.element') reactMode = 'wp'
 
   // Global variable name for React
   const reactGlobal = importToGlobal.react
     ? importToGlobal.react
-    : reactMode!=='wp'
-      ? 'React'
-      : 'wp.element'
+    : reactMode !== 'wp'
+    ? 'React'
+    : 'wp.element'
 
   // JSX transforms
-  const jsxFactory  = `${reactGlobal}.createElement`
+  const jsxFactory = `${reactGlobal}.createElement`
   const jsxFragment = `${reactGlobal}.Fragment`
 
   // Provide default aliases for Preact
-  if (reactMode==='preact' && !aliases.react) {
+  if (reactMode === 'preact' && !aliases.react) {
     Object.assign(aliases, {
       react: 'preact/compat',
       'react-dom': 'preact/compat',
     })
   }
 
-  if (reactMode==='wp') {
-
+  if (reactMode === 'wp') {
     // https://developer.wordpress.org/block-editor/reference-guides/packages/packages-element/
 
     Object.assign(importToGlobal, {
       react: 'wp.element',
-      'react-dom': 'wp.element'
+      'react-dom': 'wp.element',
     })
-
   } else if (importToGlobal.react) {
     /**
      * Replace import 'react' with global variable
@@ -157,27 +148,26 @@ function createOptionsForTaskType(config, task) {
 
   return {
     plugins: [
-
       // Plugins for JavaScript
 
       json(),
 
       alias({
-        entries: aliases
+        entries: aliases,
       }),
 
       injectProcessEnv({
         env: processEnv,
       }),
 
-      replace( replaceStrings ),
+      replace(replaceStrings),
 
       // https://github.com/rollup/plugins/tree/master/packages/node-resolve
       nodeResolve({
         moduleDirectories,
         browser: true,
         // Following option must be *false* for polyfill to work
-        preferBuiltins: false
+        preferBuiltins: false,
       }),
 
       // https://github.com/snowpackjs/rollup-plugin-polyfill-node
@@ -188,14 +178,13 @@ function createOptionsForTaskType(config, task) {
 
       // https://github.com/egoist/rollup-plugin-esbuild
       esbuild({
-
         include: /\.[jt]sx?$/,
         exclude: /node_modules/,
 
         target: 'es2017', // default, or 'es20XX', 'esnext'
 
         sourceMap: true,
-        minify: ! isDev,
+        minify: !isDev,
 
         // Optionally preserve symbol names during minification
         // https://esbuild.github.io/api/#keep-names
@@ -209,7 +198,6 @@ function createOptionsForTaskType(config, task) {
 
         // Add extra loaders
         loaders: {
-
           // Enable JSX in .js files
           '.js': 'jsx',
 
@@ -234,26 +222,23 @@ function createOptionsForTaskType(config, task) {
        * Transform imports into global variables
        */
       ...(Object.keys(importToGlobal).length
-        ? [externalGlobals( importToGlobal )]
-        : []
-      ),
+        ? [externalGlobals(importToGlobal)]
+        : []),
 
       /**
-         * Transform global variables into import statements
-         *
-         * For React, it serves as an auto-import when JSX is used.
-         *
-         * - The plugin can't parse JSX, so it must come after esbuild.
-         * - If target import has an alias, such as for Preact, it is
-         * correctly transformed.
-         *
-         * @see https://github.com/rollup/plugins/tree/master/packages/inject
-         */
-      inject( globalToImport ),
-
-    ]
+       * Transform global variables into import statements
+       *
+       * For React, it serves as an auto-import when JSX is used.
+       *
+       * - The plugin can't parse JSX, so it must come after esbuild.
+       * - If target import has an alias, such as for Preact, it is
+       * correctly transformed.
+       *
+       * @see https://github.com/rollup/plugins/tree/master/packages/inject
+       */
+      inject(globalToImport),
+    ],
   }
-
 }
 
 module.exports = createOptionsForTaskType

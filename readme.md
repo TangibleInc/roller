@@ -165,6 +165,8 @@ It requires the config property `format`, which is a string or an array of path 
 
 Use `*` as wildcard, `**` to match any directory levels, and `!` to exclude pattern. Use `{}` and a comma-separated list to match multiple items.
 
+Folders named `node_modules` and `vendor` are excluded.
+
 #### Example: All files in directory
 
 ```
@@ -183,6 +185,7 @@ format: 'src/**/*.{html,js,scss}'
 format: [
   'assets/src/**/*.{js,scss}',
   '**/*.php',
-  '!**/vendor/**'
+  '!test'
 ]
 ```
+

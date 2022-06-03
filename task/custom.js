@@ -1,4 +1,3 @@
-
 module.exports = () => ({
   async build(props) {
     const { config, task } = props
@@ -7,5 +6,5 @@ module.exports = () => ({
     // TODO: Provide watcher during development?
 
     await task.build(props)
-  }
+  },
 })

@@ -7,46 +7,31 @@ const chokidar = require('chokidar')
 // const getFileSize = require('../utils/getFileSize')
 
 async function buildHTML(props) {
+  const { config, task, inputOptions, outputOptions, reloader } = props
 
-  const {
-    config,
-    task,
-    inputOptions,
-    outputOptions,
-    reloader
-  } = props
+  const { rootDir, isDev } = config
 
-  const {
-    rootDir,
-    isDev
-  } = config
-
-  const {
-    src,
-    dest
-  } = task
+  const { src, dest } = task
 
   const templateData = !task.data
     ? {}
-    : typeof task.data==='function'
-      ? await task.data(props)
-      : task.data
-
+    : typeof task.data === 'function'
+    ? await task.data(props)
+    : task.data
 
   console.log('..Building from', src)
 
   const startTime = new Date()
 
-
   // Source directory base before **/*.html
 
   const srcDirParts = []
 
-  let hasNestedSrcDirs = false    // If true, corresponding folders will be created in dest
+  let hasNestedSrcDirs = false // If true, corresponding folders will be created in dest
   let hasMultipleSrcFiles = false // If true, dest must specify dir name only (not file name)
 
   for (const part of src.split('/')) {
-    if (part==='**') {
+    if (part === '**') {
       hasNestedSrcDirs = true
       hasMultipleSrcFiles = true
       break
@@ -63,7 +48,6 @@ async function buildHTML(props) {
   const srcFullPath = path.join(rootDir, src)
   const srcDirBase = path.join(rootDir, srcDirParts.join('/'))
 
-
   // Destination directory
 
   const destDirParts = []
@@ -79,7 +63,6 @@ async function buildHTML(props) {
 
   const destDir = path.join(rootDir, destDirParts.join('/'))
 
-
   // Get and transform files
 
   const files = await glob(srcFullPath, {
@@ -94,7 +77,6 @@ async function buildHTML(props) {
   let firstTime = true
 
   async function buildFile(file, logStart = true, logEnd = true) {
-
     let fileStartTime
 
     if (logStart) {
@@ -109,16 +91,15 @@ async function buildHTML(props) {
     const dirPath = path.dirname(file)
 
     async function include(target) {
-
       // console.log('Include file', target)
 
       // Resolve relative file path
-      const filePath = path.resolve( dirPath, target )
+      const filePath = path.resolve(dirPath, target)
 
       let content = ''
       try {
         content = await fsp.readFile(filePath, 'utf8')
-      } catch(e) {
+      } catch (e) {
         console.log('Error building template', path.relative(rootDir, file))
         console.error(e.message)
       }
@@ -132,16 +113,15 @@ async function buildHTML(props) {
         templateData,
         {
           async: true,
-          include
+          include,
         }
       )
-    } catch(e) {
+    } catch (e) {
       console.error(e)
       return
     }
 
     if (reloader && reloader.active) {
-
       /**
        * Reloader client from lib/reloader/client.js
        */
@@ -152,7 +132,7 @@ async function buildHTML(props) {
       )
 
       if (content.indexOf('</body>') >= 0) {
-        content = content.replace('</body>', clientInstance+'</body>')
+        content = content.replace('</body>', clientInstance + '</body>')
       } else {
         content += clientInstance
       }
@@ -160,24 +140,22 @@ async function buildHTML(props) {
 
     const destFileFullPath = path.join(
       destDir,
-      (destFileName && !hasMultipleSrcFiles)
+      destFileName && !hasMultipleSrcFiles
         ? destFileName
         : path.relative(srcDirBase, file)
     )
 
     // Ensure directory exists
-    await fsp.mkdir(
-      path.dirname(destFileFullPath),
-      { recursive: true }
-    )
+    await fsp.mkdir(path.dirname(destFileFullPath), { recursive: true })
 
     await fsp.writeFile(destFileFullPath, content)
 
     if (logEnd) {
-
       const duration = new Date() - fileStartTime
 
-      console.log('Built', path.relative(rootDir, destFileFullPath)
+      console.log(
+        'Built',
+        path.relative(rootDir, destFileFullPath)
         // , 'in', (duration / 1000).toFixed(2)+'s'
       )
     }
@@ -186,7 +164,7 @@ async function buildHTML(props) {
   }
 
   // Build in parallel
-  await Promise.all(files.map(f => buildFile(f, false)))
+  await Promise.all(files.map((f) => buildFile(f, false)))
   firstTime = false
 
   // Previously:
@@ -194,35 +172,31 @@ async function buildHTML(props) {
   //   await buildFile(file)
   // }
 
-
   // Done
 
   const duration = new Date() - startTime
-  const builtResult = path.relative(rootDir, destDir) + (
-    hasNestedSrcDirs ? '/**/*.html' : ('/' + (destFileName || '*.html'))
-  )
+  const builtResult =
+    path.relative(rootDir, destDir) +
+    (hasNestedSrcDirs ? '/**/*.html' : '/' + (destFileName || '*.html'))
 
   // console.log('Built', builtResult, 'in', (duration / 1000).toFixed(2)+'s')
-
 
   if (!isDev) return
 
   // Watch files and rebuild
 
   const watcher = chokidar.watch(srcFullPath, {
-    ignoreInitial: true // Ignore initial "add" event
+    ignoreInitial: true, // Ignore initial "add" event
   })
 
   watcher
-    .on('add', file => buildFile(file))
-    .on('change', file => buildFile(file))
-    .on('unlink', file => {
+    .on('add', (file) => buildFile(file))
+    .on('change', (file) => buildFile(file))
+    .on('unlink', (file) => {
       // Remove destination file?
     })
-
-
 }
 
 module.exports = () => ({
-  build: buildHTML
+  build: buildHTML,
 })

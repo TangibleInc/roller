@@ -7,15 +7,9 @@
 
 const path = require('path')
 
-const supportedTaskTypes = [
-  'js', 'sass', 'html', 'copy', 'custom',
-]
+const supportedTaskTypes = ['js', 'sass', 'html', 'copy', 'custom']
 
-function createTaskConfigs({
-  config,
-  task
-}) {
-
+function createTaskConfigs({ config, task }) {
   if (supportedTaskTypes.indexOf(task.task) < 0) {
     return
   }
@@ -23,17 +17,18 @@ function createTaskConfigs({
   const {
     rootDir,
     env, // Same as process.env.NODE_ENV but allow override
-    isDev
+    isDev,
   } = config
 
   const createOptionsForTaskType = require(`./${task.task}`)
 
-  if (!task.src || !task.dest) return {
-    inputOptions: createOptionsForTaskType(config, task),
-    outputOptions: {}
-  }
+  if (!task.src || !task.dest)
+    return {
+      inputOptions: createOptionsForTaskType(config, task),
+      outputOptions: {},
+    }
 
-  const destFullPath = path.join(rootDir, task.dest )
+  const destFullPath = path.join(rootDir, task.dest)
 
   // Input options
 
@@ -46,29 +41,28 @@ function createTaskConfigs({
     onwarn(warning, rollupWarn) {
       if (warning.code === 'CIRCULAR_DEPENDENCY') return
       rollupWarn(warning)
-    }
+    },
   }
-
 
   // Output options
 
   const outputOptions = {
     // name: task.name,
-    file: task.task==='sass'
-      ? (task.dest + '.tmp') // PostCSS emits its own file
-      : task.dest
-    ,
-    sourcemap: task.task==='sass' ? false : true,
+    file:
+      task.task === 'sass'
+        ? task.dest + '.tmp' // PostCSS emits its own file
+        : task.dest,
+    sourcemap: task.task === 'sass' ? false : true,
     sourcemapFile: task.dest + '.map',
-    format: task.task==='sass' ? 'es' : 'iife',
+    format: task.task === 'sass' ? 'es' : 'iife',
 
     // For styles plugin
-    assetFileNames: task.task==='sass' ? '[name]' : '',
+    assetFileNames: task.task === 'sass' ? '[name]' : '',
   }
 
   return {
     inputOptions,
-    outputOptions
+    outputOptions,
   }
 }
 

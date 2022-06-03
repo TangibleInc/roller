@@ -1,4 +1,3 @@
-
 const path = require('path')
 
 // Rollup plugins
@@ -7,30 +6,25 @@ const del = require('rollup-plugin-delete')
 const styles = require('rollup-plugin-styles')
 
 function createOptionsForTaskType(config, task) {
-
   const {
     rootDir,
     env, // Same as process.env.NODE_ENV but allow override
-    isDev
+    isDev,
   } = config
 
   // Directories for resolving modules
 
   const moduleDirectories = [
     ...(task.root
-      ? (
-        Array.isArray(task.root)
-          ? task.root
-          : [task.root]
-      ).map(f => path.resolve(f))
-      : []
-    ),
-    path.join(rootDir, 'node_modules')
+      ? (Array.isArray(task.root) ? task.root : [task.root]).map((f) =>
+          path.resolve(f)
+        )
+      : []),
+    path.join(rootDir, 'node_modules'),
   ]
 
   return {
     plugins: [
-
       // Plugins for SASS
 
       // For https://github.com/Anidetrix/rollup-plugin-styles
@@ -48,17 +42,17 @@ function createOptionsForTaskType(config, task) {
         // https://anidetrix.github.io/rollup-plugin-styles/interfaces/types.options.html
         // https://anidetrix.github.io/rollup-plugin-styles/interfaces/loaders_postcss_url.urloptions.html
         url: {
-          inline: true
+          inline: true,
         },
-        plugins: [autoprefixer]
+        plugins: [autoprefixer],
       }),
 
       // Remove temporary JS file
       del({
         targets: task.dest + '.tmp',
-        hook: 'closeBundle'
+        hook: 'closeBundle',
       }),
-    ]
+    ],
   }
 }
 
