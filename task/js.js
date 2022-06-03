@@ -170,7 +170,7 @@ function createOptionsForTaskType(config, task) {
         preferBuiltins: false,
       }),
 
-      // https://github.com/snowpackjs/rollup-plugin-polyfill-node
+      // https://github.com/FredKSchott/rollup-plugin-polyfill-node
       polyfillNode({
         // include: null, // Transform Node.js builtins in all files
         sourceMap: true,

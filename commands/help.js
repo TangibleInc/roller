@@ -11,8 +11,9 @@ Commands:
 
   dev     Build for development and watch files for changes
   build   Build for production
-  serve   Start static file server
   format  Format files to code standard
+  lint    Run linter to report potential issues
+  serve   Start static file server
 
 Documentation: ${homepage}
 `)

@@ -1,6 +1,5 @@
 const path = require('path')
 const fs = require('fs')
-const readline = require('readline')
 
 function createConfig({ commandName }) {
   const rootDir = process.cwd()
@@ -28,7 +27,8 @@ module.exports = {
       src:  'src/index.scss',
       dest: 'build/app.min.css',
     },
-  ]
+  ],
+  format: 'src'
 }
 
 Documentation: ${require('../package.json').homepage}
