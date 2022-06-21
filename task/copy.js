@@ -51,9 +51,16 @@ module.exports = () => ({
       .filter((part) => part.indexOf('*') < 0)
       .join('/')
 
+    const isDestPathFolder = (destPath.split('/').pop() || '')
+      .indexOf('.') < 0
+
     await Promise.all(
       files.map((file) =>
-        fs.copy(file, path.join(destPath, path.relative(srcDir, file)))
+        fs.copy(file,
+          isDestPathFolder
+            ? path.join(destPath, path.relative(srcDir, file))
+            : destPath
+        )
       )
     ).catch((e) => console.log('Error while copying:', e.message))
 

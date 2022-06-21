@@ -113,6 +113,8 @@ async function buildHTML(props) {
         templateData,
         {
           async: true,
+          useWith: true,
+          autoTrim: false,
           include,
         }
       )

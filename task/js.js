@@ -188,7 +188,7 @@ function createOptionsForTaskType(config, task) {
 
         // Optionally preserve symbol names during minification
         // https://esbuild.github.io/api/#keep-names
-        keepNames: task.keepNames != null ? task.keepNames : false,
+        keepNames: false,
 
         jsx: 'transform',
         jsxFactory,
@@ -208,6 +208,8 @@ function createOptionsForTaskType(config, task) {
           '.css': 'css',
           '.scss': 'scss',
         },
+
+        ...(task.esbuild || {})
       }),
 
       /**

@@ -29,8 +29,6 @@ const run = (cmd, options = {}) =>
       if (result && !silent) console.log(result)
       resolve()
     } catch (e) {
-      // if (capture) return reject(e.message)
-      // if (e.message && !silent) console.error(e.message)
       reject(e)
     }
   })
@@ -85,8 +83,10 @@ Documentation: ${homepage}#format
 
   const commands = []
   const prettierFiles = []
+  let requirePhp = false
 
   Object.keys(filesByType).forEach((type) => {
+
     if (type !== 'php') {
       if (lint) return // No lint for JS, Sass, etc.
       prettierFiles.push(...filesByType[type])
@@ -104,6 +104,7 @@ Documentation: ${homepage}#format
      * https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage
      */
     commands.push({
+      type: 'php',
       title: `..Running PHP ${lint ? 'Lint' : 'Beautify'}`,
       command: `php ${
         lint ? phpcsPath : phpcbfPath
@@ -114,6 +115,7 @@ Documentation: ${homepage}#format
         .join(' ')}`, // || true
       ignoreCommandFailed: true,
     })
+    requirePhp = true
   })
 
   if (prettierFiles.length) {
@@ -121,14 +123,29 @@ Documentation: ${homepage}#format
     commands.push({
       title: '..Running Prettier\n',
       command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write "{${prettierFiles
-        // .map(f => f.replace(/"/g, '\"')) // Escape quotes just in case
+        .map(f => f.replace(/"/g, '\"')) // Escape quotes just in case
         .join(',')}}"`,
     })
   }
 
+  let hasPhp = false
+  if (requirePhp) {
+    try {
+      await run('php --version', { silent: true, capture: true })
+      hasPhp = true
+    } catch(e) {
+      console.log('..Skipping PHP Beautify - Command "php" not found')
+    }
+  }
+
+
   await Promise.all(
-    commands.map(function ({ title, command, ignoreCommandFailed }) {
+    commands.map(function ({ type, title, command, ignoreCommandFailed }) {
+
+      if (type==='php' && !hasPhp) return
+
       console.log(title)
+
       // console.log(`..Running command: ${command}\n`)
       return run(command, {
         cwd: rootDir,
@@ -141,7 +158,7 @@ Documentation: ${homepage}#format
           return
 
         console.error(e.message)
-      }) // Let others complete
+      }) // Let other tasks complete
     })
   )
 }

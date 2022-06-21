@@ -54,10 +54,14 @@ function createTaskConfigs({ config, task }) {
         : task.dest,
     sourcemap: task.task === 'sass' ? false : true,
     sourcemapFile: task.dest + '.map',
+
+    // cjs, es, iife, umd
     format: task.task === 'sass' ? 'es' : 'iife',
 
     // For styles plugin
     assetFileNames: task.task === 'sass' ? '[name]' : '',
+
+    ...(task.output || {})
   }
 
   return {
