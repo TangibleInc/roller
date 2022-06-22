@@ -1,7 +1,17 @@
 const path = require('path')
 const fs = require('fs')
 
-function createConfig({ commandName }) {
+function createConfig({ commandName, args }) {
+
+  if (args[0]) {
+    try {
+      process.chdir(args[0])
+    } catch (e) {
+      console.warn(`Error changing into project directory "${args[0]}"`)
+      process.exit(1)
+    }
+  }
+
   const rootDir = process.cwd()
 
   const configJsPath = path.join(rootDir, 'tangible.config.js')
@@ -10,7 +20,7 @@ function createConfig({ commandName }) {
   if (!fs.existsSync(configJsPath)) {
     if (commandName === 'help') return // No message for help screen
 
-    // TODO: Provide a command to create new config
+    // TODO: Provide command "init" to create new config
 
     console.log(`
 Please create a configuration file named tangible.config.js

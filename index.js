@@ -4,7 +4,7 @@ const createReloader = require('./lib/reloader')
 
 const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
 
-;(async function run(commandName) {
+;(async function run(commandName = 'help', ...args) {
   if (supportedCommands.indexOf(commandName) < 0) {
     commandName = 'help'
   }
@@ -15,10 +15,47 @@ const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
 
   process.env.NODE_ENV = commandName === 'dev' ? 'development' : 'production'
 
+  // Support specifying more than one project
+  if (args.length > 1) {
+
+    if (['build', 'format'].indexOf(commandName) < 0) {
+      console.log(`Command "${commandName}" does not support more than one project`)
+      process.exit(1)
+    }
+
+    const rootDir = process.cwd()
+
+    for (const arg of args) {
+      console.log(`\nProject "${arg}"\n`)
+      const config = createConfig({
+        commandName,
+        args: [arg],
+      })
+
+      await runWithConfig({
+        commandName,
+        runCommand,
+        config,
+      })
+
+      process.chdir(rootDir)
+    }
+    return
+  }
+
   const config = createConfig({
     commandName,
+    args,
   })
 
+  await runWithConfig({
+    commandName,
+    runCommand,
+    config,
+  })
+})(...process.argv.slice(2)).catch(console.error)
+
+async function runWithConfig({ commandName, runCommand, config }) {
   if (['dev', 'build'].indexOf(commandName) < 0) {
     // Other commands
     return runCommand({ config })
@@ -62,7 +99,7 @@ const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
   })
 
   // Run tasks in parallel
-  Promise.all(
+  return Promise.all(
     tasks.map(function (task) {
       const taskConfigs = createTaskConfigs({ config, task })
 
@@ -98,4 +135,4 @@ const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
       console.log('..Watching files for changes - Press CTRL+C to exit')
     })
     .catch(console.log)
-})(process.argv.slice(2)[0] || 'help').catch(console.error)
+}

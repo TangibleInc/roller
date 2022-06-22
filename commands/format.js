@@ -85,11 +85,34 @@ Documentation: ${homepage}#format
   const prettierFiles = []
   let requirePhp = false
 
-  Object.keys(filesByType).forEach((type) => {
+  const maxFileListLength = 1024
+  function batchFileLists(files, separator = ' ') {
 
+    // Batch files to avoid ENAMETOOLONG error when command too long
+    const fileLists = []
+    let current = ''
+
+    for (const file of files) {
+      if ((current.length + file.length) > maxFileListLength) {
+        fileLists.push( current )
+        current = ''
+      }
+      current += (current ? separator : '')+file
+    }
+
+    if (current) {
+      fileLists.push( current )
+    }
+
+    return fileLists
+  }
+
+  Object.keys(filesByType).forEach((type) => {
     if (type !== 'php') {
       if (lint) return // No lint for JS, Sass, etc.
-      prettierFiles.push(...filesByType[type])
+      prettierFiles.push(...filesByType[type]
+        .map(f => f.replace(/"/g, '"')) // Escape quotes just in case)
+      )
       return
     }
     /**
@@ -103,29 +126,38 @@ Documentation: ${homepage}#format
      * Option -s means include source codes in the report
      * https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage
      */
-    commands.push({
-      type: 'php',
-      title: `..Running PHP ${lint ? 'Lint' : 'Beautify'}`,
-      command: `php ${
-        lint ? phpcsPath : phpcbfPath
-      } -s --colors --extensions=php --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 --parallel=5 --runtime-set installed_paths ${wpcsPath} --standard=${standardPath} ${filesByType[
-        type
-      ]
-        .map((f) => path.relative(rootDir, f))
-        .join(' ')}`, // || true
-      ignoreCommandFailed: true,
-    })
+
+    const fileLists = batchFileLists(
+      filesByType[type].map(f => path.relative(rootDir, f))
+    )
+
+    for (const fileList of fileLists) {
+
+      commands.push({
+        type: 'php',
+        title: `..Running PHP ${lint ? 'Lint' : 'Beautify'}`,
+        command: `php ${
+          lint ? phpcsPath : phpcbfPath
+        } -s -q --extensions=php --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 --parallel=5 --runtime-set installed_paths ${wpcsPath} --standard=${standardPath} ${fileList}`, // || true
+        ignoreCommandFailed: true,
+      })
+    }
+
     requirePhp = true
   })
 
   if (prettierFiles.length) {
-    // https://prettier.io/docs/en/options.html
-    commands.push({
-      title: '..Running Prettier\n',
-      command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write "{${prettierFiles
-        .map(f => f.replace(/"/g, '\"')) // Escape quotes just in case
-        .join(',')}}"`,
-    })
+
+    const fileLists = batchFileLists(prettierFiles, ',')
+
+    for (const fileList of fileLists) {
+
+      // https://prettier.io/docs/en/options.html
+      commands.push({
+        title: '..Running Prettier\n',
+        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write "{${fileList}}"`,
+      })
+    }
   }
 
   let hasPhp = false
@@ -133,18 +165,21 @@ Documentation: ${homepage}#format
     try {
       await run('php --version', { silent: true, capture: true })
       hasPhp = true
-    } catch(e) {
+    } catch (e) {
       console.log('..Skipping PHP Beautify - Command "php" not found')
     }
   }
 
+  const titleDisplayed = {}
 
   await Promise.all(
     commands.map(function ({ type, title, command, ignoreCommandFailed }) {
+      if (type === 'php' && !hasPhp) return
 
-      if (type==='php' && !hasPhp) return
-
-      console.log(title)
+      if (!titleDisplayed[type]) {
+        console.log(title)
+        titleDisplayed[type] = true
+      }
 
       // console.log(`..Running command: ${command}\n`)
       return run(command, {

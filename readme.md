@@ -68,6 +68,21 @@ npx roll [command]
 
 Run the above without any command to see a help screen.
 
+**Project directory**
+
+Optionally specify a child directory as project root
+
+```
+npm run [command] [folder]
+npx roll [command] [folder]
+```
+
+The "build" and "format" commands support multiple projects.
+
+```
+npm run build [...folders]
+npm run format [...folders]
+```
 
 ## Config
 

@@ -209,7 +209,7 @@ function createOptionsForTaskType(config, task) {
           '.scss': 'scss',
         },
 
-        ...(task.esbuild || {})
+        ...(task.esbuild || {}),
       }),
 
       /**
@@ -217,7 +217,13 @@ function createOptionsForTaskType(config, task) {
        * so it supports JSX in files with .js file extension
        */
       commonjs({
-        // include: /node_modules/
+        // include: /node_modules/,
+
+        // https://github.com/rollup/plugins/tree/master/packages/commonjs#transformmixedesmodules
+        transformMixedEsModules: true,
+
+        // Option to leave require() uncompiled for some modules
+        ignore: [],
       }),
 
       /**

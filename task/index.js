@@ -38,8 +38,13 @@ function createTaskConfigs({ config, task }) {
 
     ...createOptionsForTaskType(config, task),
 
+    // https://rollupjs.org/guide/en/#onwarn
     onwarn(warning, rollupWarn) {
-      if (warning.code === 'CIRCULAR_DEPENDENCY') return
+      if (
+        warning.code === 'CIRCULAR_DEPENDENCY' ||
+        warning.code === 'THIS_IS_UNDEFINED'
+      )
+        return
       rollupWarn(warning)
     },
   }
@@ -52,7 +57,7 @@ function createTaskConfigs({ config, task }) {
       task.task === 'sass'
         ? task.dest + '.tmp' // PostCSS emits its own file
         : task.dest,
-    sourcemap: task.task === 'sass' ? false : true,
+    sourcemap: task.task === 'sass' ? false : task.map !== false, // true by default
     sourcemapFile: task.dest + '.map',
 
     // cjs, es, iife, umd
@@ -61,7 +66,7 @@ function createTaskConfigs({ config, task }) {
     // For styles plugin
     assetFileNames: task.task === 'sass' ? '[name]' : '',
 
-    ...(task.output || {})
+    ...(task.output || {}),
   }
 
   return {

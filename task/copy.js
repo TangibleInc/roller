@@ -51,12 +51,12 @@ module.exports = () => ({
       .filter((part) => part.indexOf('*') < 0)
       .join('/')
 
-    const isDestPathFolder = (destPath.split('/').pop() || '')
-      .indexOf('.') < 0
+    const isDestPathFolder = (destPath.split('/').pop() || '').indexOf('.') < 0
 
     await Promise.all(
       files.map((file) =>
-        fs.copy(file,
+        fs.copy(
+          file,
           isDestPathFolder
             ? path.join(destPath, path.relative(srcDir, file))
             : destPath
