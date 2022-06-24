@@ -150,6 +150,22 @@ function createOptionsForTaskType(config, task) {
     plugins: [
       // Plugins for JavaScript
 
+      /**
+       * CommonJS plugin moved from below ESBuild to top of list,
+       * to better handle module and exports. It also means JSX is
+       * only supported in files with .jsx file extension.
+       */
+      commonjs({
+
+        preserveSymlinks: true,
+
+        // https://github.com/rollup/plugins/tree/master/packages/commonjs#transformmixedesmodules
+        transformMixedEsModules: true,
+
+        // Option to leave require() uncompiled for some modules
+        ignore: [],
+      }),
+
       json(),
 
       alias({
@@ -188,7 +204,7 @@ function createOptionsForTaskType(config, task) {
 
         // Optionally preserve symbol names during minification
         // https://esbuild.github.io/api/#keep-names
-        keepNames: false,
+        keepNames: true,
 
         jsx: 'transform',
         jsxFactory,
@@ -210,20 +226,6 @@ function createOptionsForTaskType(config, task) {
         },
 
         ...(task.esbuild || {}),
-      }),
-
-      /**
-       * CommonJS plugin moved from top of list to after ESBuild,
-       * so it supports JSX in files with .js file extension
-       */
-      commonjs({
-        // include: /node_modules/,
-
-        // https://github.com/rollup/plugins/tree/master/packages/commonjs#transformmixedesmodules
-        transformMixedEsModules: true,
-
-        // Option to leave require() uncompiled for some modules
-        ignore: [],
       }),
 
       /**
