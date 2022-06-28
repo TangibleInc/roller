@@ -78,11 +78,10 @@ function createOptionsForTaskType(config, task) {
         Object.assign(processEnv, task.replaceStrings[key])
         continue
       }
-      values[key] = JSON.stringify(
+      values[key] =
         task.replaceStrings[key] instanceof Function
-          ? task.replaceStrings[key]()
-          : task.replaceStrings[key]
-      )
+          ? () => JSON.stringify(task.replaceStrings[key]())
+          : JSON.stringify(task.replaceStrings[key])
     }
   }
 
