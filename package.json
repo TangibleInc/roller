@@ -9,6 +9,9 @@
   "bin": {
     "roll": "./run"
   },
+  "tangible": {
+    "deployType": "tool"
+  },
   "scripts": {
     "release": "npm publish --access public",
     "test": "cd test && if [ ! -d node_modules ]; then npm install; fi && ../run",

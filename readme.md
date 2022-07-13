@@ -4,6 +4,10 @@
 
 The purpose of this tool is to compile a set of JavaScript/TypeScript, SASS, HTML and other files into minified bundles with source maps.
 
+#### Source code
+
+https://bitbucket.org/tangibleinc/roller
+
 
 ## Requirement
 
