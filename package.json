@@ -10,6 +10,7 @@
     "roll": "./run"
   },
   "tangible": {
+    "deployName": "tangible-roller",
     "deployType": "tool"
   },
   "scripts": {
