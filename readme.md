@@ -2,7 +2,7 @@
 
 > Build project assets using [Rollup](https://rollupjs.org/guide/en/) and [ESBuild](https://esbuild.github.io/)
 
-The purpose of this tool is to compile a set of JavaScript/TypeScript, SASS, HTML and other files into minified bundles with source maps.
+The purpose of this tool is to compile a set of JavaScript/TypeScript, Sass, HTML and other files into minified bundles with source maps.
 
 #### Source code
 
@@ -202,3 +202,16 @@ format: [
   '!test'
 ]
 ```
+
+
+## Comparison with Tangible Builder
+
+Tangible Roller is the next generation of the build tool. It's much faster, and better compatible with Node.js version 12 and above.
+
+The configuration schema in `tangible.config.js` is almost the same, except:
+
+- JS files with React JSX syntax must have file extension `.jsx`
+
+- For each build task's config, the `watch` property is no longer needed and can be removed.  All imported files are automatically watched for changes.
+
+- Similarly, the `task` property (js/sass/html) can be removed.  The task type is automatically inferred from the file extension in src property.
