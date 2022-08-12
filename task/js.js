@@ -5,6 +5,7 @@ const alias = require('@rollup/plugin-alias')
 const commonjs = require('@rollup/plugin-commonjs')
 const esbuild = require('rollup-plugin-esbuild').default
 const externalGlobals = require('rollup-plugin-external-globals')
+const image = require('@rollup/plugin-image')
 const inject = require('@rollup/plugin-inject')
 const json = require('@rollup/plugin-json')
 const polyfillNode = require('rollup-plugin-polyfill-node')
@@ -152,7 +153,7 @@ function createOptionsForTaskType(config, task) {
       /**
        * CommonJS plugin moved from below ESBuild to top of list,
        * to better handle module and exports. It also means JSX is
-       * only supported in files with .jsx file extension.
+       * only supported in files with .jsx or .tsx file extension.
        */
       commonjs({
 
@@ -166,6 +167,18 @@ function createOptionsForTaskType(config, task) {
       }),
 
       json(),
+
+      /**
+       * A Rollup plugin which imports JPG, PNG, GIF, SVG, and WebP files.
+       *
+       * Images are encoded using base64, which means they will be 33% larger than
+       * the size on disk. You should therefore only use this for small images where
+       * he convenience of having them available on startup (e.g. rendering immediately
+       * to a canvas without co-ordinating asynchronous loading of several images)
+       * outweighs the cost.
+       * @see https://github.com/rollup/plugins/tree/master/packages/image
+       */
+      image(),
 
       alias({
         entries: aliases,
@@ -222,6 +235,10 @@ function createOptionsForTaskType(config, task) {
           // CSS/SASS modules - TODO: Options for styles plugin?
           '.css': 'css',
           '.scss': 'scss',
+
+          // Other content types - https://esbuild.github.io/content-types/
+          '.svg': 'text',
+          ...(task.esbuildLoaders || {}),
         },
 
         ...(task.esbuild || {}),
