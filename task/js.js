@@ -238,6 +238,7 @@ function createOptionsForTaskType(config, task) {
 
           // Other content types - https://esbuild.github.io/content-types/
           '.svg': 'text',
+
           ...(task.esbuildLoaders || {}),
         },
 
@@ -263,6 +264,9 @@ function createOptionsForTaskType(config, task) {
        * @see https://github.com/rollup/plugins/tree/master/packages/inject
        */
       inject(globalToImport),
+
+      ...(task.rollupPlugins || []),
+
     ],
   }
 }
