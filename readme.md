@@ -66,7 +66,7 @@ npm run format
 
 Use `npx`, which is bundled with Node.js, to run other builder commands.
 
-```
+```sh
 npx roll [command]
 ```
 
@@ -76,14 +76,14 @@ Run the above without any command to see a help screen.
 
 Optionally specify a child directory as project root
 
-```
+```sh
 npm run [command] [folder]
 npx roll [command] [folder]
 ```
 
 The "build" and "format" commands support multiple projects.
 
-```
+```sh
 npm run build [...folders]
 npm run format [...folders]
 ```
@@ -214,4 +214,4 @@ The configuration schema in `tangible.config.js` is almost the same, except:
 
 - For each build task's config, the `watch` property is no longer needed and can be removed.  All imported files are automatically watched for changes.
 
-- Similarly, the `task` property (js/sass/html) can be removed.  The task type is automatically inferred from the file extension in src property.
+- Similarly, the `task` property (js/sass/html) can be removed.  The task type is automatically inferred from the file extension in `src` property.
