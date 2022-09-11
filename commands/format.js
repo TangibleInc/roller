@@ -153,9 +153,10 @@ Documentation: ${homepage}#format
     for (const fileList of fileLists) {
 
       // https://prettier.io/docs/en/options.html
+      // https://prettier.io/docs/en/cli.html#--cache
       commands.push({
         title: '..Running Prettier\n',
-        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write "{${fileList}}"`,
+        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write --cache --cache-strategy metadata "{${fileList}}"`,
       })
     }
   }
