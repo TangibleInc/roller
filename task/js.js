@@ -22,7 +22,7 @@ function createOptionsForTaskType(config, task) {
 
   // Directories for resolving modules
 
-  const moduleDirectories = [
+  const modulePaths = [
     ...(task.root
       ? (Array.isArray(task.root) ? task.root : [task.root]).map((f) =>
           path.resolve(f)
@@ -192,7 +192,7 @@ function createOptionsForTaskType(config, task) {
 
       // https://github.com/rollup/plugins/tree/master/packages/node-resolve
       nodeResolve({
-        moduleDirectories,
+        modulePaths,
         browser: true,
         // Following option must be *false* for polyfill to work
         preferBuiltins: false,
