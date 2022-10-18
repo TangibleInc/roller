@@ -3,6 +3,7 @@ const path = require('path')
 // Rollup plugins
 const alias = require('@rollup/plugin-alias')
 const commonjs = require('@rollup/plugin-commonjs')
+const css = require('rollup-plugin-import-css')
 const esbuild = require('rollup-plugin-esbuild').default
 const externalGlobals = require('rollup-plugin-external-globals')
 const image = require('@rollup/plugin-image')
@@ -165,6 +166,8 @@ function createOptionsForTaskType(config, task) {
         // Option to leave require() uncompiled for some modules
         ignore: [],
       }),
+
+      css(),
 
       json(),
 
