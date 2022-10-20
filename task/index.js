@@ -64,7 +64,7 @@ function createTaskConfigs({ config, task }) {
     format: task.task === 'sass' ? 'es' : 'iife',
 
     // For styles plugin
-    assetFileNames: task.task === 'sass' ? '[name]' : '',
+    assetFileNames: task.task === 'sass' ? '[name]' : '[name].module[extname]',
 
     ...(task.output || {}),
   }
