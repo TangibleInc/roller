@@ -3,7 +3,6 @@ const path = require('path')
 // Rollup plugins
 const alias = require('@rollup/plugin-alias')
 const commonjs = require('@rollup/plugin-commonjs')
-const css = require('rollup-plugin-import-css')
 const esbuild = require('rollup-plugin-esbuild').default
 const externalGlobals = require('rollup-plugin-external-globals')
 const image = require('@rollup/plugin-image')
@@ -13,6 +12,7 @@ const polyfillNode = require('rollup-plugin-polyfill-node')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const replace = require('@rollup/plugin-replace')
 const injectProcessEnv = require('rollup-plugin-inject-process-env')
+const styles = require('rollup-plugin-styles')
 
 function createOptionsForTaskType(config, task) {
   const {
@@ -167,7 +167,20 @@ function createOptionsForTaskType(config, task) {
         ignore: [],
       }),
 
-      css(),
+      /**
+       * Support styles import from JS
+       * https://github.com/Anidetrix/rollup-plugin-styles
+       * https://anidetrix.github.io/rollup-plugin-styles/interfaces/types.Options.html
+       */
+       styles({
+        // Enable CSS modules for file extension .module.css
+        autoModules: true,
+        extensions: ['css', 'scss'],
+        mode: 'extract',
+        sourceMap: true,
+        minimize: true,
+        ...(task.styles || {}),
+      }),
 
       json(),
 
