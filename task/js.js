@@ -162,9 +162,6 @@ function createOptionsForTaskType(config, task) {
 
         // https://github.com/rollup/plugins/tree/master/packages/commonjs#transformmixedesmodules
         transformMixedEsModules: true,
-
-        // Option to leave require() uncompiled for some modules
-        ignore: [],
       }),
 
       /**
@@ -263,9 +260,22 @@ function createOptionsForTaskType(config, task) {
 
       /**
        * Transform imports into global variables
+       *
+       * Previously used `externalGlobals(importToGlobal)`, but it only applied to
+       * `import` statements. For `require` statements, the CommonJS plugin transforms
+       * module names into absolute paths. To support this, it's necessary to use
+       * a function to match the module path.
+       *
+       * @see https://github.com/eight04/rollup-plugin-external-globals#createplugin
        */
       ...(Object.keys(importToGlobal).length
-        ? [externalGlobals(importToGlobal)]
+        ? [externalGlobals(id => {
+          for (const key of Object.keys(importToGlobal)) {
+            if (id===key || id.indexOf(`/node_modules/${key}/`) >= 0) {
+              return importToGlobal[key]
+            }
+          }
+        })]
         : []),
 
       /**
