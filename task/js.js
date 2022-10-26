@@ -148,6 +148,13 @@ function createOptionsForTaskType(config, task) {
   }
 
   return {
+
+    // Define imports aliased to globals as external to bypass CommonJS plugin
+    ...(Object.keys(importToGlobal).length
+      ? { external : Object.keys(importToGlobal) }
+      : {}
+    ),
+
     plugins: [
       // Plugins for JavaScript
 
@@ -260,29 +267,9 @@ function createOptionsForTaskType(config, task) {
 
       /**
        * Transform imports into global variables
-       *
-       * Previously used `externalGlobals(importToGlobal)`, but it only applies to
-       * `import` statements. For `require` statements, the CommonJS plugin transforms
-       * module names into absolute paths. To support this, it's necessary to use
-       * a function to match the module path.
-       *
-       * @see https://github.com/eight04/rollup-plugin-external-globals#createplugin
        */
       ...(Object.keys(importToGlobal).length
-        ? [externalGlobals(id => {
-          for (const key of Object.keys(importToGlobal)) {
-            if (id===key) return importToGlobal[key]
-            if (id.indexOf(`/node_modules/${key}/`) < 0) continue
-            /**
-             * Detect wrapped module and mock require function
-             * https://github.com/rollup/plugins/blob/master/packages/commonjs/src/generate-imports.js
-             */
-            if (id.split('?')[1]==='commonjs-wrapped') {
-              return `{ __require: function() { return ${importToGlobal[key]} } }`
-            }
-            return importToGlobal[key]
-          }
-        })]
+        ? [externalGlobals(importToGlobal)]
         : []),
 
       /**
