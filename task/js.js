@@ -149,12 +149,6 @@ function createOptionsForTaskType(config, task) {
 
   return {
 
-    // Define imports aliased to globals as external to bypass CommonJS plugin
-    ...(Object.keys(importToGlobal).length
-      ? { external : Object.keys(importToGlobal) }
-      : {}
-    ),
-
     plugins: [
       // Plugins for JavaScript
 
@@ -267,9 +261,42 @@ function createOptionsForTaskType(config, task) {
 
       /**
        * Transform imports into global variables
+       *
+       * Previously used `externalGlobals(importToGlobal)`, but it only
+       * supports `import` statements.
+       *
+       * For `require` statements, usually inside NPM packages in node_modules,
+       * the CommonJS plugin transforms module names into absolute paths. To
+       * support this, it's necessary to use a function to dynamically match
+       * the module path. [0] In addition, the module may be wrapped to provide
+       * `__require` and `default` properties. [1]
+       *
+       * This workaround depends on the internals of the CommonJS plugin.
+       * Ideally, the issue should be solved in the plugin itself.
+       *
+       * The real underlying cause of issue is that the External Globals plugin
+       * is not working well with the CommonJS plugin. And also that Rollup's
+       * option `globals` is not working as expected. [2]
+       *
+       * [0] https://github.com/eight04/rollup-plugin-external-globals#createplugin
+       * [1] https://github.com/rollup/plugins/blob/master/packages/commonjs/src/generate-imports.js
+       * [2] https://rollupjs.org/guide/en/#outputglobals
        */
       ...(Object.keys(importToGlobal).length
-        ? [externalGlobals(importToGlobal)]
+        ? [
+          externalGlobals(id => {
+          for (const key of Object.keys(importToGlobal)) {
+            const varName = importToGlobal[key]
+            if (id===key) return varName
+            if (id.indexOf(`/node_modules/${key}/`) < 0) continue
+            if (id.split('?')[1]==='commonjs-wrapped') {
+              // The replacement must provide a compatible wrapper
+              return `{ __require: function() { if (${varName} && !${varName}.default) ${varName}.default = ${varName}; return ${varName} } }`
+            }
+            return varName
+          }
+        })
+      ]
         : []),
 
       /**
