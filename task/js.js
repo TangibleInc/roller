@@ -42,23 +42,23 @@ function createOptionsForTaskType(config, task) {
 
   const aliases = task.alias
     ? Object.keys(task.alias).reduce((obj, key) => {
-        let target = task.alias[key]
+      let target = task.alias[key]
 
-        // Shortcut to alias import to global variable
-        if (target.indexOf('window.') === 0) {
-          importToGlobal[key] = target.replace('window.', '')
-          return
-        }
+      // Shortcut to alias import to global variable
+      if (target.indexOf('window.') === 0) {
+        importToGlobal[key] = target.replace('window.', '')
+        return
+      }
 
-        // Transform relative to absolute path
-        if (target[0] === '.') {
-          target = path.join(rootDir, target)
-        }
+      // Transform relative to absolute path
+      if (target[0] === '.') {
+        target = path.join(rootDir, target)
+      }
 
-        obj[key] = target
+      obj[key] = target
 
-        return obj
-      }, {})
+      return obj
+    }, {})
     : {}
 
   // Transform global variables into import statements
@@ -112,8 +112,8 @@ function createOptionsForTaskType(config, task) {
   const reactGlobal = importToGlobal.react
     ? importToGlobal.react
     : reactMode !== 'wp'
-    ? 'React'
-    : 'wp.element'
+      ? 'React'
+      : 'wp.element'
 
   // JSX transforms
   const jsxFactory = `${reactGlobal}.createElement`
@@ -170,7 +170,7 @@ function createOptionsForTaskType(config, task) {
        * https://github.com/Anidetrix/rollup-plugin-styles
        * https://anidetrix.github.io/rollup-plugin-styles/interfaces/types.Options.html
        */
-       styles({
+      styles({
         // Enable CSS modules for file extension .module.css
         autoModules: true,
         extensions: ['css', 'scss'],
@@ -185,11 +185,11 @@ function createOptionsForTaskType(config, task) {
       /**
        * A Rollup plugin which imports JPG, PNG, GIF, SVG, and WebP files.
        *
-       * Images are encoded using base64, which means they will be 33% larger than
+       * "Images are encoded using base64, which means they will be 33% larger than
        * the size on disk. You should therefore only use this for small images where
-       * he convenience of having them available on startup (e.g. rendering immediately
+       * the convenience of having them available on startup (e.g. rendering immediately
        * to a canvas without co-ordinating asynchronous loading of several images)
-       * outweighs the cost.
+       * outweighs the cost."
        * @see https://github.com/rollup/plugins/tree/master/packages/image
        */
       image(),
@@ -246,7 +246,7 @@ function createOptionsForTaskType(config, task) {
           // Add .json files support - require @rollup/plugin-json
           '.json': 'json',
 
-          // CSS/SASS modules - TODO: Options for styles plugin?
+          // CSS/SASS modules
           '.css': 'css',
           '.scss': 'scss',
 
@@ -256,6 +256,7 @@ function createOptionsForTaskType(config, task) {
           ...(task.esbuildLoaders || {}),
         },
 
+        // Custom ESBuild options per task
         ...(task.esbuild || {}),
       }),
 
@@ -274,9 +275,9 @@ function createOptionsForTaskType(config, task) {
        * This workaround depends on the internals of the CommonJS plugin.
        * Ideally, the issue should be solved in the plugin itself.
        *
-       * The real underlying cause of issue is that the External Globals plugin
-       * is not working well with the CommonJS plugin. And also that Rollup's
-       * option `globals` is not working as expected. [2]
+       * The real underlying issue is that the External Globals plugin does not
+       * work well with the CommonJS plugin. And also Rollup's option `globals`
+       * is not working as expected. [2]
        *
        * [0] https://github.com/eight04/rollup-plugin-external-globals#createplugin
        * [1] https://github.com/rollup/plugins/blob/master/packages/commonjs/src/generate-imports.js
@@ -284,19 +285,19 @@ function createOptionsForTaskType(config, task) {
        */
       ...(Object.keys(importToGlobal).length
         ? [
-          externalGlobals(id => {
-          for (const key of Object.keys(importToGlobal)) {
-            const varName = importToGlobal[key]
-            if (id===key) return varName
-            if (id.indexOf(`/node_modules/${key}/`) < 0) continue
-            if (id.split('?')[1]==='commonjs-wrapped') {
-              // The replacement must provide a compatible wrapper
-              return `{ __require: function() { if (${varName} && !${varName}.default) ${varName}.default = ${varName}; return ${varName} } }`
-            }
-            return varName
-          }
-        })
-      ]
+            externalGlobals(id => {
+              for (const key of Object.keys(importToGlobal)) {
+                const varName = importToGlobal[key]
+                if (id === key) return varName
+                if (id.indexOf(`/node_modules/${key}/`) < 0) continue
+                if (id.split('?')[1] === 'commonjs-wrapped') {
+                  // The replacement must provide a compatible wrapper
+                  return `{ __require: function() { if (${varName} && !${varName}.default) ${varName}.default = ${varName}; return ${varName} } }`
+                }
+                return varName
+              }
+            })
+          ]
         : []),
 
       /**
@@ -312,8 +313,8 @@ function createOptionsForTaskType(config, task) {
        */
       inject(globalToImport),
 
+      // Custom Rollup plugins per task
       ...(task.rollupPlugins || []),
-
     ],
   }
 }

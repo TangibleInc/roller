@@ -11,7 +11,7 @@ const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
 
   const runCommand = require(`./commands/${commandName}`)
 
-  if (!runCommand instanceof Function) return
+  if (!(runCommand instanceof Function)) return
 
   process.env.NODE_ENV = commandName === 'dev' ? 'development' : 'production'
 
@@ -105,7 +105,7 @@ async function runWithConfig({ commandName, runCommand, config }) {
 
       if (!taskConfigs) {
         console.log(`Task not supported:`, task)
-        return
+        return Promise.resolve() // Let other tasks continue
       }
 
       return runCommand({

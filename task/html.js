@@ -16,8 +16,8 @@ async function buildHTML(props) {
   const templateData = !task.data
     ? {}
     : typeof task.data === 'function'
-    ? await task.data(props)
-    : task.data
+      ? await task.data(props)
+      : task.data
 
   console.log('..Building from', src)
 
@@ -91,7 +91,6 @@ async function buildHTML(props) {
     const dirPath = path.dirname(file)
 
     async function include(target) {
-      // console.log('Include file', target)
 
       // Resolve relative file path
       const filePath = path.resolve(dirPath, target)
@@ -103,6 +102,7 @@ async function buildHTML(props) {
         console.log('Error building template', path.relative(rootDir, file))
         console.error(e.message)
       }
+
       return content
     }
 
@@ -178,8 +178,8 @@ async function buildHTML(props) {
 
   const duration = new Date() - startTime
   const builtResult =
-    path.relative(rootDir, destDir) +
-    (hasNestedSrcDirs ? '/**/*.html' : '/' + (destFileName || '*.html'))
+    path.relative(rootDir, destDir)
+    + (hasNestedSrcDirs ? '/**/*.html' : '/' + (destFileName || '*.html'))
 
   // console.log('Built', builtResult, 'in', (duration / 1000).toFixed(2)+'s')
 

@@ -63,7 +63,6 @@ Documentation: ${homepage}#format
     ) {
       // All files in a directory
       patterns[index] = `${pattern}/**/*.{${knownTypes.join(',')}}`
-      return
     }
   })
 
@@ -75,7 +74,7 @@ Documentation: ${homepage}#format
   // Organize by file extensions
   const filesByType = files.reduce(function (obj, file) {
     const extension = file.split('.').pop()
-    if (knownTypes.indexOf(extension) < 0) return
+    if (knownTypes.indexOf(extension) < 0) return obj
     if (!obj[extension]) obj[extension] = []
     obj[extension].push(file)
     return obj
@@ -111,12 +110,13 @@ Documentation: ${homepage}#format
     if (type !== 'php') {
       if (lint) return // No lint for JS, Sass, etc.
       prettierFiles.push(...filesByType[type]
-        .map(f => f.replace(/"/g, '"')) // Escape quotes just in case)
+        .map(f => f.replace(/"/g, '"')) // Escape quotes just in case
       )
       return
     }
     /**
-     * PHP_CodeSniffer requires the following PHP extensions to be enabled: Tokenizer, SimpleXML, XMLWriter
+     * PHP_CodeSniffer requires the following extensions to be enabled:
+     * Tokenizer, SimpleXML, XMLWriter
      *
      * sudo apt-get install php7.4-xml
      * php -i | grep "xml"
@@ -190,7 +190,9 @@ Documentation: ${homepage}#format
          * Workaround for phpcbf returning with non-zero exit code even
          * when beautify completed successfully.
          */
-        if (ignoreCommandFailed && e.message.indexOf('Command failed') === 0)
+        if (
+          //ignoreCommandFailed && 
+          e.message.indexOf('Command failed') === 0)
           return
 
         console.error(e.message)
