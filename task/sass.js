@@ -3,7 +3,11 @@ const path = require('path')
 // Rollup plugins
 const autoprefixer = require('autoprefixer')
 const del = require('rollup-plugin-delete')
-const styles = require('rollup-plugin-styles')
+/**
+ * Using fork of rollup-plugin-styles with updated dependencies
+ * See [Support for Rollup v3](https://github.com/Anidetrix/rollup-plugin-styles/issues/224)
+ */
+const styles = require('@ironkinoko/rollup-plugin-styles')
 
 function createOptionsForTaskType(config, task) {
   const {
