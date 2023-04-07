@@ -1,6 +1,6 @@
 {
   "name": "@tangible/roller",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "description": "Build project assets using Rollup and ESBuild",
   "homepage": "https://github.com/tangibleinc/tangible-roller",
   "repository": "git@github.com:tangibleinc/tangible-roller.git",
