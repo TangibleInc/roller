@@ -156,7 +156,9 @@ Documentation: ${homepage}#format
       // https://prettier.io/docs/en/cli.html#--cache
       commands.push({
         title: '..Running Prettier\n',
-        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write --cache --cache-strategy metadata "{${fileList}}"`,
+        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write --cache --cache-strategy metadata "${
+          fileList.indexOf(',')===-1 ? fileList : `{${fileList}}`
+        }"`,
       })
     }
   }
