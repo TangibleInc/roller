@@ -6,6 +6,11 @@ module.exports = {
       react: 'preact' // react, preact, wp
     },
     {
+      src: 'src/wp.jsx',
+      dest: 'build/wp.min.js',
+      react: 'wp'
+    },
+    {
       src: 'src/index.scss',
       dest: 'build/test.min.css'
     },

@@ -141,7 +141,7 @@ Its value is one of:
 
 - `react` (default)
 - `preact` - Import modules `react` and `react-dom` are aliased to `preact/compat`
-- `wp` - Import modules `react` and `react-dom` are aliased to global variable `wp.element`
+- `wp` - Import modules `react` and `react-dom` are aliased to global variable `wp.element`. Also, import modules `@wordpress/*` are aliased to properties under global variable `wp`.
 
 
 #### Aliases
@@ -149,7 +149,7 @@ Its value is one of:
 The following optional task properties perform various substitutions.
 
 - `alias` - Map import module name to target module name or file path
-- `importToGlobal` - Map import module name to global variable name
+- `importToGlobal` - Map import module name to global variable name; supports dynamic name such as `@example/*`, for which a function should be given that takes the module name and returns the variable name
 - `globalToImport` - Map global variable name to import module name
 - `replaceStrings` - Map string to another string
 

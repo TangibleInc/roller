@@ -17,6 +17,7 @@ const injectProcessEnv = require('rollup-plugin-inject-process-env')
  * See [Support for Rollup v3](https://github.com/Anidetrix/rollup-plugin-styles/issues/224)
  */
 const styles = require('@ironkinoko/rollup-plugin-styles')
+const kebabToCamel = require('../utils/kebabToCamel')
 
 function createOptionsForTaskType(config, task) {
   const {
@@ -51,7 +52,7 @@ function createOptionsForTaskType(config, task) {
       // Shortcut to alias import to global variable
       if (target.indexOf('window.') === 0) {
         importToGlobal[key] = target.replace('window.', '')
-        return
+        return obj
       }
 
       // Transform relative to absolute path
@@ -138,6 +139,21 @@ function createOptionsForTaskType(config, task) {
       react: 'wp.element',
       'react-dom': 'wp.element',
     })
+
+    /**
+     * By default, alias import `@wordpress/*` to properties under global
+     * variable `wp`, the same as the `wp-scripts` tool.
+     * @see https://github.com/WordPress/gutenberg/blob/30e1054c8be9b25ad6723dfc2fd2498c567e574d/packages/dependency-extraction-webpack-plugin/lib/util.js#L15
+     */
+
+    // Escape hatch
+    if (importToGlobal['@wordpress'] === false) {
+      delete importToGlobal['@wordpress']
+    } else {
+      importToGlobal['@wordpress/*'] = 'wp.*'
+    }
+
+
   } else if (importToGlobal.react) {
     /**
      * Replace import 'react' with global variable
@@ -293,6 +309,18 @@ function createOptionsForTaskType(config, task) {
               for (const key of Object.keys(importToGlobal)) {
                 const varName = importToGlobal[key]
                 if (id === key) return varName
+                if (key.endsWith('/*')) {
+                  const keyBase = key.slice(0, -1)
+                  if (id.indexOf(keyBase) !== 0) continue
+                  if (varName instanceof Function) {
+                    return varName(id)
+                  }
+                  if (varName.endsWith('.*')) {
+                    const slug = id.slice(keyBase.length)
+                    return varName.slice(0, -1) + kebabToCamel(slug)
+                  }
+                  return varName
+                }
                 if (id.indexOf(`/node_modules/${key}/`) < 0) continue
                 if (id.split('?')[1] === 'commonjs-wrapped') {
                   // The replacement must provide a compatible wrapper
