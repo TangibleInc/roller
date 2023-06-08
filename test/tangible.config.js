@@ -2,8 +2,18 @@ module.exports = {
   build: [
     {
       src: 'src/index.jsx',
-      dest: 'build/test.min.js',
+      dest: 'build/with-react.min.js',
+      react: 'react'
+    },
+    {
+      src: 'src/index.jsx',
+      dest: 'build/with-preact.min.js',
       react: 'preact' // react, preact, wp
+    },
+    {
+      src: 'src/index.jsx',
+      dest: 'build/with-preact-window.min.js',
+      react: 'window.Tangible.Preact'
     },
     {
       src: 'src/wp.jsx',
