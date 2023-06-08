@@ -216,6 +216,9 @@ function createOptionsForTaskType(config, task) {
 
       alias({
         entries: aliases,
+        customResolver: nodeResolve({
+          extensions: ['.js', '.jsx', '.ts', '.tsx']
+        })
       }),
 
       injectProcessEnv({
