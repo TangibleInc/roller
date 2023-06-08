@@ -216,6 +216,7 @@ function createOptionsForTaskType(config, task) {
 
       alias({
         entries: aliases,
+        // https://github.com/rollup/plugins/tree/master/packages/alias#custom-resolvers
         customResolver: nodeResolve({
           extensions: ['.js', '.jsx', '.ts', '.tsx']
         })
