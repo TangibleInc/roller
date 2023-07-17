@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-function createConfig({ commandName, args }) {
+async function createConfig({ commandName, args }) {
 
   if (args[0]) {
     try {
@@ -48,7 +48,9 @@ Documentation: ${require('../package.json').homepage}
     return
   }
 
-  const configJson = require(configJsPath)
+  const { default: configJson } = await import(configJsPath)
+  // const configJson = require(configJsPath)
+
   const packageJson = fs.existsSync(packageJsonPath)
     ? require(packageJsonPath)
     : {}

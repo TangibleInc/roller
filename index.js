@@ -26,8 +26,10 @@ const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
     const rootDir = process.cwd()
 
     for (const arg of args) {
+
       console.log(`\nProject "${arg}"\n`)
-      const config = createConfig({
+
+      const config = await createConfig({
         commandName,
         args: [arg],
       })
@@ -43,7 +45,7 @@ const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
     return
   }
 
-  const config = createConfig({
+  const config = await createConfig({
     commandName,
     args,
   })
