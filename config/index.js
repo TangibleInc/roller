@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs')
+const url = require('url')
 
 async function createConfig({ commandName, args }) {
 
@@ -48,8 +49,14 @@ Documentation: ${require('../package.json').homepage}
     return
   }
 
-  const { default: configJson } = await import(configJsPath)
-  // const configJson = require(configJsPath)
+  /**
+   * ES Module loading with abolute path fails on Windows unless it's
+   * converted to URL: https://github.com/nodejs/node/issues/31710
+   */
+  const configJsPathUrl = url.pathToFileURL(configJsPath).href
+
+  const { default: configJson } = await import(configJsPathUrl)
+  // const configJson = require(configJsPath) // Previously with CommonJS
 
   const packageJson = fs.existsSync(packageJsonPath)
     ? require(packageJsonPath)
