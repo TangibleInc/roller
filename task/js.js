@@ -246,7 +246,7 @@ function createOptionsForTaskType(config, task) {
         include: /\.[jt]sx?$/,
         exclude: /node_modules/,
 
-        target: 'es2017', // default, or 'es20XX', 'esnext'
+        target: 'es2020', // default, or 'es20XX', 'esnext'
 
         sourceMap: true,
         minify: !isDev,
