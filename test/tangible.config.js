@@ -2,7 +2,7 @@ module.exports = {
   build: [
     {
       src: 'src/index.jsx',
-      dest: 'build/with-react.min.js',
+      dest: 'build/test.min.js',
       react: 'react'
     },
     {
