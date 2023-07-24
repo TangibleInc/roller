@@ -18,6 +18,7 @@ const injectProcessEnv = require('rollup-plugin-inject-process-env')
  */
 const styles = require('@ironkinoko/rollup-plugin-styles')
 const kebabToCamel = require('../utils/kebabToCamel')
+const raw = require('../utils/rollupPluginRaw')
 
 function createOptionsForTaskType(config, task) {
   const {
@@ -222,9 +223,7 @@ function createOptionsForTaskType(config, task) {
         })
       }),
 
-      injectProcessEnv({
-        env: processEnv,
-      }),
+      injectProcessEnv(processEnv),
 
       replace(replaceStrings),
 
@@ -348,6 +347,8 @@ function createOptionsForTaskType(config, task) {
        * @see https://github.com/rollup/plugins/tree/master/packages/inject
        */
       inject(globalToImport),
+
+      ...(task.raw ? [raw(task.raw)] : []),
 
       // Custom Rollup plugins per task
       ...(task.rollupPlugins || []),
