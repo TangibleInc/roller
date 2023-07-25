@@ -58,7 +58,9 @@ function createTaskConfigs({ config, task }) {
         ? task.dest + '.tmp' // PostCSS emits its own file
         : task.dest,
     sourcemap: task.task === 'sass' ? false : task.map !== false, // true by default
-    sourcemapFile: task.dest + '.map',
+
+    // Use default source map name to support dynamic exports and code splitting
+    // sourcemapFile: task.dest + '.map',
 
     // cjs, es, iife, umd
     format: task.task === 'sass' ? 'es' : 'iife',
