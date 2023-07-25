@@ -168,6 +168,21 @@ function createOptionsForTaskType(config, task) {
     globalToImport.React = ['react', '*']
   }
 
+  /**
+   * Bundle dynamic imports inline by default, unless using ES Module format
+   * and dynamic export file names are defined to support code splitting.
+   * 
+   * For example: { format: 'es', assetFileNames: 'build/prefix-[name].[ext]' }
+   * 
+   * @see https://bitbucket.org/tangibleinc/roller/issues/2/invalid-value-iife-for-option-outputformat
+   * @see https://rollupjs.org/configuration-options/#output-assetfilenames
+   */
+  if (!task.output) task.output = {}
+  if (!task.output.format && typeof task.output.inlineDynamicImports==='undefined') {
+    task.output.inlineDynamicImports = true
+  }
+
+  // Rollup input options
   return {
 
     plugins: [
