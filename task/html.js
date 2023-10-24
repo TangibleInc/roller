@@ -2,7 +2,7 @@ const path = require('path')
 const fsp = require('fs').promises
 
 const glob = require('fast-glob')
-const eta = require('eta')
+const { Eta } = require('eta')
 const chokidar = require('chokidar')
 // const getFileSize = require('../utils/getFileSize')
 
@@ -86,7 +86,8 @@ async function buildHTML(props) {
       fileStartTime = new Date()
     }
 
-    // https://eta.js.org/docs/syntax/async
+    // https://eta.js.org/docs/api
+    const eta = new Eta()
 
     const dirPath = path.dirname(file)
 
@@ -108,7 +109,7 @@ async function buildHTML(props) {
 
     let content = ''
     try {
-      content = await eta.render(
+      content = await eta.renderStringAsync(
         await fsp.readFile(file, 'utf8'),
         templateData,
         {
