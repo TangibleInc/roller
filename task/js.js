@@ -325,7 +325,10 @@ function createOptionsForTaskType(config, task) {
         ? [
             externalGlobals(id => {
               for (const key of Object.keys(importToGlobal)) {
+
+                // Name of global variable, such as `wp.element`
                 const varName = importToGlobal[key]
+
                 if (id === key) return varName
 
                 // Match wildcard
@@ -342,7 +345,7 @@ function createOptionsForTaskType(config, task) {
                   return varName
                 }
 
-                // ID can have null character at beginning!
+                // Strangely, ID can have null character at beginning
                 id = id.replace(/^\0/, '')
 
                 if (id.indexOf(`/node_modules/${key}/`) < 0
@@ -351,14 +354,16 @@ function createOptionsForTaskType(config, task) {
 
                 // Provide missing property "default"
                 const fn = `function() { if (${varName} && !${varName}.default) ${varName}.default = ${varName}; return ${varName} }`
+
                 const type = id.split('?')[1]
 
                 if (type === 'commonjs-wrapped') {
                   return `{ __require: ${fn} }`
                 }
-                if (type === 'commonjs-external') {
+                if (type === 'commonjs-external' || type === 'commonjs-proxy') {
                   return `(${fn})()`
                 }
+
                 return varName
               }
             })
