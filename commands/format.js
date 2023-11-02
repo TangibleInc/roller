@@ -1,8 +1,8 @@
 const path = require('path')
-const { execSync } = require('child_process')
-
 const glob = require('fast-glob')
 const fs = require('fs-extra')
+
+const run = require('../utils/run')
 
 const prettierIgnorePath = path.resolve(
   path.join(__dirname, '..', 'config', '.prettierignore')
@@ -13,25 +13,6 @@ const phpcbfPath = path.join(phpLibPath, 'phpcbf.phar')
 const phpcsPath = path.join(phpLibPath, 'phpcs.phar')
 const wpcsPath = path.join(phpLibPath, 'wpcs')
 const standardPath = path.join(phpLibPath, 'phpcs.xml')
-
-const run = (cmd, options = {}) =>
-  new Promise((resolve, reject) => {
-    const { silent = false, capture = false, cwd = process.cwd() } = options
-
-    // if (!silent && !capture) console.log(cmd)
-
-    try {
-      const result = capture
-        ? execSync(cmd, { stdio: 'pipe', cwd }).toString()
-        : execSync(cmd, { stdio: 'inherit', cwd })
-
-      if (capture) return resolve(result)
-      if (result && !silent) console.log(result)
-      resolve()
-    } catch (e) {
-      reject(e)
-    }
-  })
 
 async function format({ config, lint = false }) {
   if (!config.format) {

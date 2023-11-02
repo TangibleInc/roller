@@ -2,8 +2,10 @@ const path = require('path')
 const fs = require('fs')
 const url = require('url')
 
-async function createConfig({ commandName, args }) {
+const prompt = require('../utils/prompt')
+const run = require('../utils/run')
 
+async function createConfig({ commandName, args }) {
   if (args[0]) {
     try {
       process.chdir(args[0])
@@ -65,6 +67,26 @@ Documentation: ${require('../package.json').homepage}
   const { name = '', dependencies = {}, devDependencies = {} } = packageJson
 
   const { build: tasks = [], format, lint, serve } = configJson
+
+  // Ensure project dependencies are installed
+  if (
+    Object.keys(dependencies).length > 0 &&
+    !fs.existsSync(path.join(rootDir, 'node_modules'))
+  ) {
+    console.log('Project has uninstalled dependencies')
+    console.log()
+    const answer = await prompt(
+      'Press enter to run "npm install", or CTRL+C to cancel..',
+    )
+    console.log()
+    if (answer === false) {
+      // Cancelled
+      process.exit()
+    }
+    console.log('npm install')
+    await run('npm install')
+    console.log()
+  }
 
   const env = process.env.NODE_ENV
   const isDev = env === 'development'
