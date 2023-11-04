@@ -1,3 +1,4 @@
+// https://nodejs.org/api/readline.html
 const readline = require('readline')
 
 function prompt(query) {
@@ -9,7 +10,7 @@ function prompt(query) {
   return new Promise((resolve) => {
     rl.on('SIGINT', function () {
       rl.close()
-      resolve(false)
+      resolve(false) // Returns false on CTRL+C
     })
     rl.question(query, (answer) => {
       rl.close()

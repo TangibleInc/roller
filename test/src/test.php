@@ -4,7 +4,6 @@ $var = 'hi';
 
 function asdf(
     $asdf,
-  $qwer
+    $qwer
 ) {
-
-};
+}

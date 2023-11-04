@@ -8,12 +8,6 @@ const prettierIgnorePath = path.resolve(
   path.join(__dirname, '..', 'config', '.prettierignore')
 )
 
-const phpLibPath = path.resolve(path.join(__dirname, '..', 'lib', 'php'))
-const phpcbfPath = path.join(phpLibPath, 'phpcbf.phar')
-const phpcsPath = path.join(phpLibPath, 'phpcs.phar')
-const wpcsPath = path.join(phpLibPath, 'wpcs')
-const standardPath = path.join(phpLibPath, 'phpcs.xml')
-
 async function format({ config, lint = false }) {
   if (!config.format) {
     const { homepage } = require('../package.json')
@@ -26,6 +20,8 @@ Documentation: ${homepage}#format
     )
     return
   }
+
+  const { lintPhpFiles, formatPhpFiles } = await import('@tangible/php-beautify')
 
   const { rootDir } = config
   const knownTypes = ['html', 'js', 'json', 'php', 'scss']
@@ -87,13 +83,17 @@ Documentation: ${homepage}#format
     return fileLists
   }
 
-  Object.keys(filesByType).forEach((type) => {
+  let hasPhp = false
+
+  for (const type of Object.keys(filesByType)) {
     if (type !== 'php') {
-      if (lint) return // No lint for JS, Sass, etc.
+
+      if (lint) continue // No lint for JS, Sass, etc.
+
       prettierFiles.push(...filesByType[type]
         .map(f => f.replace(/"/g, '"')) // Escape quotes just in case
       )
-      return
+      continue
     }
     /**
      * PHP_CodeSniffer requires the following extensions to be enabled:
@@ -108,24 +108,22 @@ Documentation: ${homepage}#format
      * https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage
      */
 
-    const fileLists = batchFileLists(
-      filesByType[type].map(f => path.relative(rootDir, f))
-    )
+    const files = filesByType[type].map(f => path.relative(rootDir, f))
 
-    for (const fileList of fileLists) {
+    commands.push({
+      type: 'php',
+      title: `..Running PHP ${lint ? 'Lint' : 'Beautify'}`,
+      async command() {
+        if (lint) {
+          await lintPhpFiles(files)
+        } else {
+          await formatPhpFiles(files)
+        }
+      }
+    })
 
-      commands.push({
-        type: 'php',
-        title: `..Running PHP ${lint ? 'Lint' : 'Beautify'}`,
-        command: `php ${
-          lint ? phpcsPath : phpcbfPath
-        } -s -q --extensions=php --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 --parallel=5 --runtime-set installed_paths ${wpcsPath} --standard=${standardPath} ${fileList}`, // || true
-        ignoreCommandFailed: true,
-      })
-    }
-
-    requirePhp = true
-  })
+    hasPhp = true
+  }
 
   if (prettierFiles.length) {
 
@@ -144,21 +142,10 @@ Documentation: ${homepage}#format
     }
   }
 
-  let hasPhp = false
-  if (requirePhp) {
-    try {
-      await run('php --version', { silent: true, capture: true })
-      hasPhp = true
-    } catch (e) {
-      console.log('..Skipping PHP Beautify - Command "php" not found')
-    }
-  }
-
   const titleDisplayed = {}
 
   await Promise.all(
     commands.map(function ({ type, title, command, ignoreCommandFailed }) {
-      if (type === 'php' && !hasPhp) return
 
       if (!titleDisplayed[type]) {
         console.log(title)
@@ -166,6 +153,11 @@ Documentation: ${homepage}#format
       }
 
       // console.log(`..Running command: ${command}\n`)
+
+      if (command instanceof Function) {
+        return command().catch(console.error)
+      }
+
       return run(command, {
         cwd: rootDir,
       }).catch((e) => {
@@ -182,6 +174,8 @@ Documentation: ${homepage}#format
       }) // Let other tasks complete
     })
   )
+
+  if (hasPhp) process.exit() // Exit to stop PHP process
 }
 
 module.exports = format

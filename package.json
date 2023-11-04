@@ -1,6 +1,6 @@
 {
   "name": "@tangible/roller",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "description": "Build project assets using Rollup and ESBuild",
   "homepage": "https://github.com/tangibleinc/tangible-roller",
   "repository": "git@github.com:tangibleinc/tangible-roller.git",
@@ -28,6 +28,7 @@
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-replace": "^5.0.2",
+    "@tangible/php-beautify": "^1.0.1",
     "autoprefixer": "^10.4.14",
     "chokidar": "^3.5.3",
     "esbuild": "^0.17.18",
