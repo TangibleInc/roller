@@ -6,19 +6,34 @@ const prompt = require('../utils/prompt')
 const run = require('../utils/run')
 
 async function createConfig({ commandName, args }) {
+  const rootDir = process.cwd()
+  const packageJsonPath = path.join(rootDir, 'package.json')
+
+  const configJsFileName = 'tangible.config.js'
+
+  let configJsPath = path.join(rootDir, configJsFileName)
+
   if (args[0]) {
-    try {
-      process.chdir(args[0])
-    } catch (e) {
-      console.warn(`Error changing into project directory "${args[0]}"`)
-      process.exit(1)
+    const configPrefix = args[0]
+    const customConfigJsPath = path.join(
+      rootDir,
+      `tangible.config.${configPrefix}.js`
+    )
+
+    if (fs.existsSync(customConfigJsPath)) {
+      configJsPath = customConfigJsPath
+    } else {
+      // Child project directory
+      if (fs.existsSync(path.join(rootDir, args[0], configJsFileName))) {
+        process.chdir(args[0])
+      } else {
+        console.warn(
+          `Couldn't find project directory with tangible.config.js, or any project config file, tangible.config.${args[0]}.js`
+        )
+        process.exit(1)
+      }
     }
   }
-
-  const rootDir = process.cwd()
-
-  const configJsPath = path.join(rootDir, 'tangible.config.js')
-  const packageJsonPath = path.join(rootDir, 'package.json')
 
   if (!fs.existsSync(configJsPath)) {
     if (commandName === 'help') return // No message for help screen
@@ -76,7 +91,7 @@ Documentation: ${require('../package.json').homepage}
     console.log('Project has uninstalled dependencies')
     console.log()
     const answer = await prompt(
-      'Press enter to run "npm install", or CTRL+C to cancel..',
+      'Press enter to run "npm install", or CTRL+C to cancel..'
     )
     console.log()
     if (answer === false) {
