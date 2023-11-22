@@ -1,6 +1,9 @@
 <?php
 $var = 'hi';
-      echo $var;
+
+echo $var;
+
+
 
 function asdf(
     $asdf,
