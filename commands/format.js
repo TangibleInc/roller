@@ -8,6 +8,8 @@ const prettierIgnorePath = path.resolve(
   path.join(__dirname, '..', 'config', '.prettierignore')
 )
 
+let phpBeautify
+
 async function format({ config, lint = false }) {
   if (!config.format) {
     const { homepage } = require('../package.json')
@@ -21,10 +23,8 @@ Documentation: ${homepage}#format
     return
   }
 
-  const { lintPhpFiles, formatPhpFiles } = await import('@tangible/php-beautify')
-
   const { rootDir } = config
-  const knownTypes = ['html', 'js', 'json', 'php', 'scss']
+  const knownTypes = ['html', 'ts', 'js', 'tsx', 'jsx', 'json', 'php', 'scss']
 
   let patterns = config.format
 
@@ -59,84 +59,82 @@ Documentation: ${homepage}#format
 
   const commands = []
   const prettierFiles = []
-  let requirePhp = false
 
   const maxFileListLength = 1024
   function batchFileLists(files, separator = ' ') {
-
     // Batch files to avoid ENAMETOOLONG error when command too long
     const fileLists = []
     let current = ''
 
     for (const file of files) {
-      if ((current.length + file.length) > maxFileListLength) {
-        fileLists.push( current )
+      if (current.length + file.length > maxFileListLength) {
+        fileLists.push(current)
         current = ''
       }
-      current += (current ? separator : '')+file
+      current += (current ? separator : '') + file
     }
 
     if (current) {
-      fileLists.push( current )
+      fileLists.push(current)
     }
 
     return fileLists
   }
 
   let hasPhp = false
+  let checkedPhpBeautify = false
 
   for (const type of Object.keys(filesByType)) {
     if (type !== 'php') {
-
       if (lint) continue // No lint for JS, Sass, etc.
 
-      prettierFiles.push(...filesByType[type]
-        .map(f => f.replace(/"/g, '"')) // Escape quotes just in case
+      prettierFiles.push(
+        ...filesByType[type].map((f) => f.replace(/"/g, '"')) // Escape quotes just in case
       )
       continue
     }
-    /**
-     * PHP_CodeSniffer requires the following extensions to be enabled:
-     * Tokenizer, SimpleXML, XMLWriter
-     *
-     * sudo apt-get install php7.4-xml
-     * php -i | grep "xml"
-     *
-     * https://github.com/squizlabs/PHP_CodeSniffer/wiki/Requirements
-     *
-     * Option -s means include source codes in the report
-     * https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage
-     */
 
-    const files = filesByType[type].map(f => path.relative(rootDir, f))
+    if (!hasPhp && !phpBeautify) {
+      // If we already checked for php-beautify, skip PHP files
+      if (checkedPhpBeautify) continue
+      checkedPhpBeautify = true
+      try {
+        phpBeautify = await import('@tangible/php-beautify')
+        hasPhp = true
+      } catch (e) {
+        console.log(
+          `PHP Beautify is now optional.\n\nPlease run: npm install --save-dev @tangible/php-beautify\n`
+        )
+        continue
+      }
+    }
+
+    const files = filesByType[type].map((f) => path.relative(rootDir, f))
 
     commands.push({
       type: 'php',
       title: `..Running PHP ${lint ? 'Lint' : 'Beautify'}`,
       async command() {
         if (lint) {
-          await lintPhpFiles(files)
+          await phpBeautify.lintPhpFiles(files)
         } else {
-          await formatPhpFiles(files)
+          await phpBeautify.formatPhpFiles(files)
         }
-      }
+      },
     })
 
     hasPhp = true
   }
 
   if (prettierFiles.length) {
-
     const fileLists = batchFileLists(prettierFiles, ',')
 
     for (const fileList of fileLists) {
-
       // https://prettier.io/docs/en/options.html
-      // https://prettier.io/docs/en/cli.html#--cache
       commands.push({
         title: '..Running Prettier\n',
-        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write --cache --cache-strategy metadata "${
-          fileList.indexOf(',')===-1 ? fileList : `{${fileList}}`
+        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write "${
+          fileList.indexOf(',') === -1 ? fileList : `{${fileList}}`
         }"`,
       })
     }
@@ -146,7 +144,6 @@ Documentation: ${homepage}#format
 
   await Promise.all(
     commands.map(function ({ type, title, command, ignoreCommandFailed }) {
-
       if (!titleDisplayed[type]) {
         console.log(title)
         titleDisplayed[type] = true
@@ -166,8 +163,9 @@ Documentation: ${homepage}#format
          * when beautify completed successfully.
          */
         if (
-          //ignoreCommandFailed && 
-          e.message.indexOf('Command failed') === 0)
+          //ignoreCommandFailed &&
+          e.message.indexOf('Command failed') === 0
+        )
           return
 
         console.error(e.message)
