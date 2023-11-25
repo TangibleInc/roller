@@ -14,21 +14,29 @@ async function createConfig({ commandName, args }) {
   let configJsPath = path.join(rootDir, configJsFileName)
 
   if (args[0]) {
-    const configPrefix = args[0]
+
+    const name = args[0]
+
+    // Child project config file
     const customConfigJsPath = path.join(
       rootDir,
-      `tangible.config.${configPrefix}.js`
+      `tangible.config.${name}.js`
     )
 
     if (fs.existsSync(customConfigJsPath)) {
+
       configJsPath = customConfigJsPath
+
     } else {
+
       // Child project directory
-      if (fs.existsSync(path.join(rootDir, args[0], configJsFileName))) {
-        process.chdir(args[0])
+      configJsPath = path.join(rootDir, name, configJsFileName)
+
+      if (fs.existsSync(configJsPath)) {
+        process.chdir(name)
       } else {
         console.warn(
-          `Couldn't find project directory with tangible.config.js, or any project config file, tangible.config.${args[0]}.js`
+          `Couldn't find project directory with tangible.config.js, or any project config file, tangible.config.${name}.js`
         )
         process.exit(1)
       }
