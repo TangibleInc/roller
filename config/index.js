@@ -89,7 +89,9 @@ Documentation: ${require('../package.json').homepage}
 
   const { name = '', dependencies = {}, devDependencies = {} } = packageJson
 
-  const { build: tasks = [], format, lint, serve } = configJson
+  const { build: tasks = [], format, lint, serve } =
+    configJson instanceof Function ? await configJson() : configJson
+
 
   // Ensure project dependencies are installed
   if (
