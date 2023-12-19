@@ -6,34 +6,34 @@ const prompt = require('../utils/prompt')
 const run = require('../utils/run')
 
 async function createConfig({ commandName, args }) {
-  const rootDir = process.cwd()
-  const packageJsonPath = path.join(rootDir, 'package.json')
+  const cwd = process.cwd()
+  let rootDir = cwd
+  let isChildProjectFolder = false
 
   const configJsFileName = 'tangible.config.js'
 
   let configJsPath = path.join(rootDir, configJsFileName)
 
   if (args[0]) {
-
     const name = args[0]
 
     // Child project config file
-    const customConfigJsPath = path.join(
-      rootDir,
-      `tangible.config.${name}.js`
-    )
+    const customConfigJsPath = path.join(rootDir, `tangible.config.${name}.js`)
 
     if (fs.existsSync(customConfigJsPath)) {
-
       configJsPath = customConfigJsPath
-
     } else {
-
       // Child project directory
       configJsPath = path.join(rootDir, name, configJsFileName)
 
       if (fs.existsSync(configJsPath)) {
-        process.chdir(name)
+        /**
+         * Was using process.chdir(name) but some rollup internals is using
+         * del() to remove previously built files, and it throws an error when
+         * they're outside the current working directory.
+         */
+        rootDir = path.join(rootDir, name)
+        isChildProjectFolder = true
       } else {
         console.warn(
           `Couldn't find project directory with tangible.config.js, or any project config file, tangible.config.${name}.js`
@@ -83,15 +83,19 @@ Documentation: ${require('../package.json').homepage}
   const { default: configJson } = await import(configJsPathUrl)
   // const configJson = require(configJsPath) // Previously with CommonJS
 
+  const packageJsonPath = path.join(rootDir, 'package.json')
   const packageJson = fs.existsSync(packageJsonPath)
     ? require(packageJsonPath)
     : {}
 
   const { name = '', dependencies = {}, devDependencies = {} } = packageJson
 
-  const { build: tasks = [], format, lint, serve } =
-    configJson instanceof Function ? await configJson() : configJson
-
+  const {
+    build: tasks = [],
+    format,
+    lint,
+    serve,
+  } = configJson instanceof Function ? await configJson() : configJson
 
   // Ensure project dependencies are installed
   if (
@@ -109,7 +113,9 @@ Documentation: ${require('../package.json').homepage}
       process.exit()
     }
     console.log('npm install')
-    await run('npm install')
+    await run('npm install --production', {
+      cwd: rootDir
+    })
     console.log()
   }
 
@@ -117,6 +123,7 @@ Documentation: ${require('../package.json').homepage}
   const isDev = env === 'development'
 
   return {
+    cwd,
     rootDir,
     env,
     isDev,
@@ -125,7 +132,18 @@ Documentation: ${require('../package.json').homepage}
     dependencies,
     devDependencies,
 
-    tasks,
+    tasks: !isChildProjectFolder
+      ? tasks
+      : tasks.map((task) => ({
+          ...task,
+          src: task.src.startsWith('/')
+            ? task.src
+            : path.join(rootDir, task.src),
+          dest: task.dest.startsWith('/')
+            ? task.dest
+            : path.join(rootDir, task.dest),
+        })),
+
     format,
     lint,
     serve,

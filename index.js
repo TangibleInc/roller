@@ -18,13 +18,6 @@ const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
   // Support specifying more than one project
   if (args.length > 1) {
 
-    if (['build', 'format'].indexOf(commandName) < 0) {
-      console.log(`Command "${commandName}" does not support more than one project`)
-      process.exit(1)
-    }
-
-    const rootDir = process.cwd()
-
     for (const arg of args) {
 
       console.log(`\nProject "${arg}"\n`)
@@ -39,8 +32,6 @@ const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
         runCommand,
         config,
       })
-
-      process.chdir(rootDir)
     }
     return
   }

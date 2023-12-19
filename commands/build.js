@@ -15,9 +15,9 @@ async function build(props) {
     return await inputOptions.build(props)
   }
 
-  const { rootDir } = config
+  const { cwd, rootDir } = config
 
-  console.log('..Building from', path.relative(rootDir, inputOptions.input))
+  console.log('..Building from', path.relative(cwd, inputOptions.input))
 
   const startTime = new Date()
 
@@ -37,7 +37,7 @@ async function build(props) {
 
   console.log(
     'Built',
-    builtFile,
+    path.relative(cwd, builtFile),
     // , 'in', (duration / 1000).toFixed(2)+'s'
     `(${fileSize})`
   )
