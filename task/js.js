@@ -301,7 +301,7 @@ function createOptionsForTaskType(config, task) {
       /**
        * Transform imports into global variables
        *
-       * Previously used `externalGlobals(importToGlobal)`, but it only
+       * Previously used a simple `externalGlobals(importToGlobal)`, but it only
        * supports `import` statements.
        *
        * For `require` statements, usually inside NPM packages in node_modules,
@@ -325,8 +325,13 @@ function createOptionsForTaskType(config, task) {
         ? [
             externalGlobals(id => {
               for (const key of Object.keys(importToGlobal)) {
+
+                // Name of global variable, such as `wp.element`
                 const varName = importToGlobal[key]
+
                 if (id === key) return varName
+
+                // Match wildcard
                 if (key.endsWith('/*')) {
                   const keyBase = key.slice(0, -1)
                   if (id.indexOf(keyBase) !== 0) continue
@@ -339,11 +344,26 @@ function createOptionsForTaskType(config, task) {
                   }
                   return varName
                 }
-                if (id.indexOf(`/node_modules/${key}/`) < 0) continue
-                if (id.split('?')[1] === 'commonjs-wrapped') {
-                  // The replacement must provide a compatible wrapper
-                  return `{ __require: function() { if (${varName} && !${varName}.default) ${varName}.default = ${varName}; return ${varName} } }`
+
+                // Strangely, ID can have null character at beginning
+                id = id.replace(/^\0/, '')
+
+                if (id.indexOf(`/node_modules/${key}/`) < 0
+                  && (id !== `${key}?commonjs-external`)
+                ) continue
+
+                // Provide missing property "default"
+                const fn = `function() { if (${varName} && !${varName}.default) ${varName}.default = ${varName}; return ${varName} }`
+
+                const type = id.split('?')[1]
+
+                if (type === 'commonjs-wrapped') {
+                  return `{ __require: ${fn} }`
                 }
+                if (type === 'commonjs-external' || type === 'commonjs-proxy') {
+                  return `(${fn})()`
+                }
+
                 return varName
               }
             })

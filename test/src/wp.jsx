@@ -7,6 +7,6 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post'
 
 const Test = () => <div>Hello world!</div>
 
-console.log('wp.data', withSelect, withDispatch )
+console.log('wp.data', withSelect, withDispatch)
 console.log('wp.editPost', PluginDocumentSettingPanel)
 console.log('Test', Test)

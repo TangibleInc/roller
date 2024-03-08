@@ -1,3 +1,3 @@
 module.exports = {
-  format: ['./**/*.js', '!lib/php', '!test'],
+  format: ['./**/*.js', '!test'],
 }

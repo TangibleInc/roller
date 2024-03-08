@@ -1,37 +1,14 @@
 const path = require('path')
-const { execSync } = require('child_process')
-
 const glob = require('fast-glob')
 const fs = require('fs-extra')
+
+const run = require('../utils/run')
 
 const prettierIgnorePath = path.resolve(
   path.join(__dirname, '..', 'config', '.prettierignore')
 )
 
-const phpLibPath = path.resolve(path.join(__dirname, '..', 'lib', 'php'))
-const phpcbfPath = path.join(phpLibPath, 'phpcbf.phar')
-const phpcsPath = path.join(phpLibPath, 'phpcs.phar')
-const wpcsPath = path.join(phpLibPath, 'wpcs')
-const standardPath = path.join(phpLibPath, 'phpcs.xml')
-
-const run = (cmd, options = {}) =>
-  new Promise((resolve, reject) => {
-    const { silent = false, capture = false, cwd = process.cwd() } = options
-
-    // if (!silent && !capture) console.log(cmd)
-
-    try {
-      const result = capture
-        ? execSync(cmd, { stdio: 'pipe', cwd }).toString()
-        : execSync(cmd, { stdio: 'inherit', cwd })
-
-      if (capture) return resolve(result)
-      if (result && !silent) console.log(result)
-      resolve()
-    } catch (e) {
-      reject(e)
-    }
-  })
+let phpBeautify
 
 async function format({ config, lint = false }) {
   if (!config.format) {
@@ -47,7 +24,7 @@ Documentation: ${homepage}#format
   }
 
   const { rootDir } = config
-  const knownTypes = ['html', 'js', 'json', 'php', 'scss']
+  const knownTypes = ['html', 'ts', 'js', 'tsx', 'jsx', 'json', 'php', 'scss']
 
   let patterns = config.format
 
@@ -82,94 +59,84 @@ Documentation: ${homepage}#format
 
   const commands = []
   const prettierFiles = []
-  let requirePhp = false
 
   const maxFileListLength = 1024
   function batchFileLists(files, separator = ' ') {
-
     // Batch files to avoid ENAMETOOLONG error when command too long
     const fileLists = []
     let current = ''
 
     for (const file of files) {
-      if ((current.length + file.length) > maxFileListLength) {
-        fileLists.push( current )
+      if (current.length + file.length > maxFileListLength) {
+        fileLists.push(current)
         current = ''
       }
-      current += (current ? separator : '')+file
+      current += (current ? separator : '') + file
     }
 
     if (current) {
-      fileLists.push( current )
+      fileLists.push(current)
     }
 
     return fileLists
   }
 
-  Object.keys(filesByType).forEach((type) => {
+  let hasPhp = false
+  let checkedPhpBeautify = false
+
+  for (const type of Object.keys(filesByType)) {
     if (type !== 'php') {
-      if (lint) return // No lint for JS, Sass, etc.
-      prettierFiles.push(...filesByType[type]
-        .map(f => f.replace(/"/g, '"')) // Escape quotes just in case
+      if (lint) continue // No lint for JS, Sass, etc.
+
+      prettierFiles.push(
+        ...filesByType[type].map((f) => f.replace(/"/g, '"')) // Escape quotes just in case
       )
-      return
-    }
-    /**
-     * PHP_CodeSniffer requires the following extensions to be enabled:
-     * Tokenizer, SimpleXML, XMLWriter
-     *
-     * sudo apt-get install php7.4-xml
-     * php -i | grep "xml"
-     *
-     * https://github.com/squizlabs/PHP_CodeSniffer/wiki/Requirements
-     *
-     * Option -s means include source codes in the report
-     * https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage
-     */
-
-    const fileLists = batchFileLists(
-      filesByType[type].map(f => path.relative(rootDir, f))
-    )
-
-    for (const fileList of fileLists) {
-
-      commands.push({
-        type: 'php',
-        title: `..Running PHP ${lint ? 'Lint' : 'Beautify'}`,
-        command: `php ${
-          lint ? phpcsPath : phpcbfPath
-        } -s -q --extensions=php --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 --parallel=5 --runtime-set installed_paths ${wpcsPath} --standard=${standardPath} ${fileList}`, // || true
-        ignoreCommandFailed: true,
-      })
+      continue
     }
 
-    requirePhp = true
-  })
+    if (!hasPhp && !phpBeautify) {
+      // If we already checked for php-beautify, skip PHP files
+      if (checkedPhpBeautify) continue
+      checkedPhpBeautify = true
+      try {
+        phpBeautify = await import('@tangible/php-beautify')
+        hasPhp = true
+      } catch (e) {
+        console.log(
+          `PHP Beautify is now optional.\n\nPlease run: npm install --save-dev @tangible/php-beautify\n`
+        )
+        continue
+      }
+    }
+
+    const files = filesByType[type].map((f) => path.relative(rootDir, f))
+
+    commands.push({
+      type: 'php',
+      title: `..Running PHP ${lint ? 'Lint' : 'Beautify'}`,
+      async command() {
+        if (lint) {
+          await phpBeautify.lintPhpFiles(files)
+        } else {
+          await phpBeautify.formatPhpFiles(files)
+        }
+      },
+    })
+
+    hasPhp = true
+  }
 
   if (prettierFiles.length) {
-
     const fileLists = batchFileLists(prettierFiles, ',')
 
     for (const fileList of fileLists) {
-
       // https://prettier.io/docs/en/options.html
-      // https://prettier.io/docs/en/cli.html#--cache
       commands.push({
         title: '..Running Prettier\n',
-        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write --cache --cache-strategy metadata "${
-          fileList.indexOf(',')===-1 ? fileList : `{${fileList}}`
+        command: `npx prettier --no-config --no-semi --single-quote --ignore-path ${prettierIgnorePath} --write "${
+          fileList.indexOf(',') === -1 ? fileList : `{${fileList}}`
         }"`,
       })
-    }
-  }
-
-  let hasPhp = false
-  if (requirePhp) {
-    try {
-      await run('php --version', { silent: true, capture: true })
-      hasPhp = true
-    } catch (e) {
-      console.log('..Skipping PHP Beautify - Command "php" not found')
     }
   }
 
@@ -177,14 +144,17 @@ Documentation: ${homepage}#format
 
   await Promise.all(
     commands.map(function ({ type, title, command, ignoreCommandFailed }) {
-      if (type === 'php' && !hasPhp) return
-
       if (!titleDisplayed[type]) {
         console.log(title)
         titleDisplayed[type] = true
       }
 
       // console.log(`..Running command: ${command}\n`)
+
+      if (command instanceof Function) {
+        return command().catch(console.error)
+      }
+
       return run(command, {
         cwd: rootDir,
       }).catch((e) => {
@@ -193,14 +163,17 @@ Documentation: ${homepage}#format
          * when beautify completed successfully.
          */
         if (
-          //ignoreCommandFailed && 
-          e.message.indexOf('Command failed') === 0)
+          //ignoreCommandFailed &&
+          e.message.indexOf('Command failed') === 0
+        )
           return
 
         console.error(e.message)
       }) // Let other tasks complete
     })
   )
+
+  if (hasPhp) process.exit() // Exit to stop PHP process
 }
 
 module.exports = format

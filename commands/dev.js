@@ -17,7 +17,7 @@ async function dev(props) {
     return await inputOptions.build(props)
   }
 
-  const { rootDir } = config
+  const { cwd, rootDir } = config
 
   return await new Promise((resolve, reject) => {
     const watcher = rollup.watch({
@@ -42,14 +42,14 @@ async function dev(props) {
 
       switch (code) {
         case 'BUNDLE_START':
-          console.log('..Building from', path.relative(rootDir, input))
+          console.log('..Building from', path.relative(cwd, input))
 
           break
         case 'BUNDLE_END':
           console.log(
             'Built',
             output
-              .map((f) => path.relative(rootDir, f.replace(/\.tmp$/, '')))
+              .map((f) => path.relative(cwd, f.replace(/\.tmp$/, '')))
               .join(', ')
             // , 'in', (duration / 1000).toFixed(2)+'s'
           )

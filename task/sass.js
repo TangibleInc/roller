@@ -48,7 +48,10 @@ function createOptionsForTaskType(config, task) {
         url: {
           inline: true,
         },
-        plugins: [autoprefixer],
+        plugins: [
+          ...(task.postCssPlugins || []),
+          autoprefixer,
+        ],
       }),
 
       // Remove temporary JS file
