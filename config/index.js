@@ -95,6 +95,7 @@ Documentation: ${require('../package.json').homepage}
     format,
     lint,
     serve,
+    archive
   } = configJson instanceof Function ? await configJson() : configJson
 
   // Ensure project dependencies are installed
@@ -147,6 +148,7 @@ Documentation: ${require('../package.json').homepage}
     format,
     lint,
     serve,
+    archive,
   }
 }
 

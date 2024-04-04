@@ -2,7 +2,7 @@ const createConfig = require('./config')
 const createTaskConfigs = require('./task')
 const createReloader = require('./lib/reloader')
 
-const supportedCommands = ['build', 'dev', 'format', 'help', 'lint', 'serve']
+const supportedCommands = ['archive', 'build', 'dev', 'format', 'help', 'lint', 'list', 'serve']
 
 ;(async function run(commandName = 'help', ...args) {
   if (supportedCommands.indexOf(commandName) < 0) {

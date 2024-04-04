@@ -46,5 +46,14 @@ module.exports = {
   serve: {
     dir: 'build',
     node: 'server.js'
+  },
+  archive: {
+    src: [
+      '**/*',
+      '!**/src',
+      '!**/test'
+    ],
+    dest: 'build/project.zip',
+    rootFolder: 'roller-test'
   }
 }
