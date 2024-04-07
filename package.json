@@ -1,6 +1,6 @@
 {
   "name": "@tangible/roller",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Build project assets using Rollup and ESBuild",
   "homepage": "https://github.com/tangibleinc/tangible-roller",
   "repository": "git@github.com:tangibleinc/tangible-roller.git",
@@ -13,6 +13,17 @@
     "deployName": "tangible-roller",
     "deployType": "tool"
   },
+  "files": [
+    "commands",
+    "config",
+    "index.js",
+    "lib",
+    "package.json",
+    "readme.md",
+    "run",
+    "task",
+    "utils"
+  ],
   "scripts": {
     "release": "npm publish --access public",
     "test": "cd test && if [ ! -d node_modules ]; then npm install; fi && ../run",
