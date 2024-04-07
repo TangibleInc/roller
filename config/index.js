@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs')
+const { readFile } = require('fs/promises')
 const url = require('url')
 
 const prompt = require('../utils/prompt')
@@ -15,32 +16,42 @@ async function createConfig({ commandName, args }) {
   let configJsPath = path.join(rootDir, configJsFileName)
 
   if (args[0]) {
+
     const name = args[0]
 
-    // Child project config file
-    const customConfigJsPath = path.join(rootDir, `tangible.config.${name}.js`)
+    // Child project directory
+    const customConfigJsPath = path.join(rootDir, name, configJsFileName)
 
     if (fs.existsSync(customConfigJsPath)) {
-      configJsPath = customConfigJsPath
-    } else {
-      // Child project directory
-      configJsPath = path.join(rootDir, name, configJsFileName)
+      /**
+       * Was using process.chdir(name) but some rollup internals is using
+       * del() to remove previously built files, and it throws an error when
+       * they're outside the current working directory.
+       */
+      rootDir = path.join(rootDir, name)
+      isChildProjectFolder = true
 
-      if (fs.existsSync(configJsPath)) {
-        /**
-         * Was using process.chdir(name) but some rollup internals is using
-         * del() to remove previously built files, and it throws an error when
-         * they're outside the current working directory.
-         */
-        rootDir = path.join(rootDir, name)
-        isChildProjectFolder = true
-      } else {
-        console.warn(
-          `Couldn't find project directory with tangible.config.js, or any project config file, tangible.config.${name}.js`
-        )
+      configJsPath = customConfigJsPath
+
+    } else {
+
+      // Child project config file
+      configJsPath = path.join(rootDir, `tangible.config.${name}.js`)
+
+      if (name.includes('/') || !fs.existsSync(configJsPath)) {
+        console.warn(`Couldn't find project directory "${name}" with tangible.config.js`)
         process.exit(1)
       }
     }
+  }
+
+  const packageJsonPath = path.join(rootDir, 'package.json')
+  const packageJson = {}
+
+  try {
+    packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
+  } catch(e) {
+    // OK
   }
 
   if (!fs.existsSync(configJsPath)) {
@@ -53,7 +64,10 @@ Please create a configuration file named tangible.config.js
 
 Example:
 
-module.exports = {
+${ packageJson.type!=='module'
+  ? 'module.exports =' // CommonJS
+  : 'export default'
+} {
   build: [
     {
       src:  'src/index.js',
@@ -82,11 +96,6 @@ Documentation: ${require('../package.json').homepage}
 
   const { default: configJson } = await import(configJsPathUrl)
   // const configJson = require(configJsPath) // Previously with CommonJS
-
-  const packageJsonPath = path.join(rootDir, 'package.json')
-  const packageJson = fs.existsSync(packageJsonPath)
-    ? require(packageJsonPath)
-    : {}
 
   const { name = '', dependencies = {}, devDependencies = {} } = packageJson
 
