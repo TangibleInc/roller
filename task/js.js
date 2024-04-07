@@ -298,6 +298,9 @@ function createOptionsForTaskType(config, task) {
         ...(task.esbuild || {}),
       }),
 
+      // Raw plugin must be before externalGlobals
+      ...(task.raw ? [raw(task.raw)] : []),
+
       /**
        * Transform imports into global variables
        *
@@ -382,8 +385,6 @@ function createOptionsForTaskType(config, task) {
        * @see https://github.com/rollup/plugins/tree/master/packages/inject
        */
       inject(globalToImport),
-
-      ...(task.raw ? [raw(task.raw)] : []),
 
       // Custom Rollup plugins per task
       ...(task.rollupPlugins || []),
