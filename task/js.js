@@ -298,6 +298,7 @@ function createOptionsForTaskType(config, task) {
         ...(task.esbuild || {}),
       }),
 
+      // Raw plugin must be before externalGlobals
       ...(task.raw ? [raw(task.raw)] : []),
 
       /**
