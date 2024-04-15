@@ -2,7 +2,7 @@
 
 > Build project assets using [Rollup](https://rollupjs.org/guide/en/) and [ESBuild](https://esbuild.github.io/)
 
-The purpose of this tool is to compile a set of JavaScript/TypeScript, Sass, HTML and other files into minified bundles with source maps.
+The purpose of this tool is to compile JavaScript, TypeScript, Sass, and other file types into minified bundles with source maps.
 
 #### Source code
 
@@ -50,6 +50,8 @@ These can be run from the terminal when you're inside the project folder.
 npm run dev
 ```
 
+Press CTRL + C to stop.
+
 **Build for production**
 
 ```sh
@@ -60,6 +62,20 @@ npm run build
 
 ```sh
 npm run format
+```
+
+**Run TypeScript file**
+
+Builds the given file and runs it.
+
+```sh
+npx roll run [file] [...options]
+```
+
+Example:
+
+```sh
+npx roll run index.ts
 ```
 
 **Other commands**
@@ -81,7 +97,7 @@ npm run [command] [folder]
 npx roll [command] [folder]
 ```
 
-The "build" and "format" commands support multiple projects.
+The `build` and `format` commands support multiple projects.
 
 ```sh
 npm run build [...folders]

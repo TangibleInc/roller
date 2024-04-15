@@ -2,7 +2,18 @@ const createConfig = require('./config')
 const createTaskConfigs = require('./task')
 const createReloader = require('./lib/reloader')
 
-const supportedCommands = ['archive', 'build', 'dev', 'format', 'help', 'lint', 'list', 'serve']
+const supportedCommands = [
+  'archive',
+  'build',
+  'bun-or',
+  'dev',
+  'format',
+  'help',
+  'lint',
+  'list',
+  'run',
+  'serve',
+]
 
 ;(async function run(commandName = 'help', ...args) {
   if (supportedCommands.indexOf(commandName) < 0) {
@@ -15,16 +26,18 @@ const supportedCommands = ['archive', 'build', 'dev', 'format', 'help', 'lint', 
 
   process.env.NODE_ENV = commandName === 'dev' ? 'development' : 'production'
 
+  const commandWithProjects = ['build', 'dev', 'format', 'lint'].includes(
+    commandName
+  )
+
   // Support specifying more than one project
-  if (args.length > 1) {
-
+  if (commandWithProjects && args.length > 1) {
     for (const arg of args) {
-
       console.log(`\nProject "${arg}"\n`)
 
       const config = await createConfig({
         commandName,
-        args: [arg],
+        subproject: arg,
       })
 
       await runWithConfig({
@@ -38,7 +51,7 @@ const supportedCommands = ['archive', 'build', 'dev', 'format', 'help', 'lint', 
 
   const config = await createConfig({
     commandName,
-    args,
+    subproject: commandWithProjects ? args[0] : false,
   })
 
   await runWithConfig({
@@ -78,10 +91,10 @@ async function runWithConfig({ commandName, runCommand, config }) {
         extension === 'scss'
           ? 'sass'
           : extension === 'html'
-          ? 'html'
-          : ['js', 'jsx', 'ts', 'tsx'].indexOf(extension) >= 0
-          ? 'js'
-          : undefined
+            ? 'html'
+            : ['js', 'jsx', 'ts', 'tsx'].indexOf(extension) >= 0
+              ? 'js'
+              : undefined
     }
   })
 

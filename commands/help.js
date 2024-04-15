@@ -16,6 +16,7 @@ Commands:
   list     List all modules in the project with a config file
   serve    Start static file server
   archive  Create zip package
+  run      Run given TypeScript file
 
 Documentation: ${homepage}
 `)

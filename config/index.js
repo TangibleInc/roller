@@ -6,7 +6,7 @@ const url = require('url')
 const prompt = require('../utils/prompt')
 const run = require('../utils/run')
 
-async function createConfig({ commandName, args }) {
+async function createConfig({ commandName, subproject }) {
   const cwd = process.cwd()
   let rootDir = cwd
   let isChildProjectFolder = false
@@ -15,9 +15,10 @@ async function createConfig({ commandName, args }) {
 
   let configJsPath = path.join(rootDir, configJsFileName)
 
-  if (args[0]) {
+  // Commands that optionally accept a subproject (module) name
+  if (subproject) {
 
-    const name = args[0]
+    const name = subproject
 
     // Child project directory
     const customConfigJsPath = path.join(rootDir, name, configJsFileName)
