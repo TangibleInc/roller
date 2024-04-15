@@ -1,5 +1,5 @@
 /**
- * Zip command: Create zip file from project
+ * Archive command: Create a zip package of the project
  */
 const path = require('path')
 const glob = require('fast-glob')

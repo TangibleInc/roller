@@ -78,6 +78,12 @@ Example:
 npx roll run index.ts
 ```
 
+**Create zip package for archive**
+
+```sh
+npx roll archive
+```
+
 **Other commands**
 
 Use `npx`, which is bundled with Node.js, to run other builder commands.
@@ -219,6 +225,15 @@ format: [
 ]
 ```
 
+### Archive
+
+Run the `archive` command to create a zip package of the project.
+
+It requires the config property `archive`. It is an object with
+
+- `src` - Source of all files: string or an array of path patterns to match
+- `dest` - Path to destination file with extension `.zip`
+- `exclude` - Optional: String or an array of path patterns to match folders and files to exclude from the package
 
 ## Comparison with Tangible Builder
 
