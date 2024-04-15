@@ -6,11 +6,8 @@ const { existsSync } = require('node:fs')
 const { execSync } = require('node:child_process')
 // const fs = require('node:fs')
 // const url = require('node:url')
-const { join: joinPath, dirname: getDirname, isAbsolute } = require('node:path')
+const { join: joinPath, isAbsolute } = require('node:path')
 // const bunOr = require('./bun-or')
-
-const filename = __filename // || url.fileURLToPath(import.meta.url)
-const dirname = getDirname(filename)
 
 module.exports = async function runEsbuild(props = {}) {
   const { argv: _argv = process.argv, bun = true } = props
@@ -35,9 +32,10 @@ Example:
   //   })
   // }
 
+  const cwd = process.cwd()
   const argv_entry_point = isAbsolute(entry_point)
     ? entry_point
-    : joinPath(dirname, entry_point)
+    : joinPath(cwd, entry_point)
 
 
   if (!existsSync(argv_entry_point)) {
