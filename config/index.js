@@ -17,7 +17,6 @@ async function createConfig({ commandName, subproject }) {
 
   // Commands that optionally accept a subproject (module) name
   if (subproject) {
-
     const name = subproject
 
     // Child project directory
@@ -33,14 +32,14 @@ async function createConfig({ commandName, subproject }) {
       isChildProjectFolder = true
 
       configJsPath = customConfigJsPath
-
     } else {
-
       // Child project config file
       configJsPath = path.join(rootDir, `tangible.config.${name}.js`)
 
       if (name.includes('/') || !fs.existsSync(configJsPath)) {
-        console.warn(`Couldn't find project directory "${name}" with tangible.config.js`)
+        console.warn(
+          `Couldn't find project directory "${name}" with tangible.config.js`
+        )
         process.exit(1)
       }
     }
@@ -51,27 +50,37 @@ async function createConfig({ commandName, subproject }) {
 
   try {
     packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
-  } catch(e) {
+  } catch (e) {
     // OK
   }
 
   if (!fs.existsSync(configJsPath)) {
     if (commandName === 'help') return // No message for help screen
 
-    // TODO: Provide command "init" to create new config
+    // Optionally run command "init" to create new config
+    const answer = await prompt(
+      'Press enter to create a new configuration file, tnagible.config.js, or CTRL+C to exit\n'
+    )
+    console.log()
+    if (answer === false) {
+      // Cancelled
+      process.exit()
+    }
 
-    console.log(`
-Please create a configuration file named tangible.config.js
-
-Example:
-
-${ packageJson.type!=='module'
-  ? 'module.exports =' // CommonJS
-  : 'export default'
-} {
+    fs.writeFileSync(
+      configJsPath,
+      `${
+        packageJson.type === 'module'
+          ? 'export default' // ES Module
+          : 'module.exports =' // CommonJS
+      } {
   build: [
     {
-      src:  'src/index.js',
+      src:  'src/index.html',
+      dest: 'build',
+    },
+    {
+      src:  'src/index.ts',
       dest: 'build/app.min.js',
     },
     {
@@ -79,14 +88,14 @@ ${ packageJson.type!=='module'
       dest: 'build/app.min.css',
     },
   ],
-  format: 'src'
+  format: 'src',
+  serve: {
+    dir: 'build'
+  }
 }
-
-Documentation: ${require('../package.json').homepage}
-`)
-
-    process.exit()
-    return
+`
+    )
+    console.log('Wrote', configJsPath)
   }
 
   /**
@@ -105,7 +114,7 @@ Documentation: ${require('../package.json').homepage}
     format,
     lint,
     serve,
-    archive
+    archive,
   } = configJson instanceof Function ? await configJson() : configJson
 
   // Ensure project dependencies are installed
@@ -125,7 +134,7 @@ Documentation: ${require('../package.json').homepage}
     }
     console.log('npm install')
     await run('npm install --production', {
-      cwd: rootDir
+      cwd: rootDir,
     })
     console.log()
   }

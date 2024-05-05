@@ -31,7 +31,8 @@
     "release": "npm publish --access public",
     "test": "cd test && if [ ! -d node_modules ]; then npm install; fi && ../run",
     "test:dev": "cd test && ../run dev",
-    "test:build": "cd test && ../run build"
+    "test:build": "cd test && ../run build",
+    "test:init": "cd test/build && ../../run init"
   },
   "dependencies": {
     "@ironkinoko/rollup-plugin-styles": "^4.0.3",

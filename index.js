@@ -9,6 +9,7 @@ const supportedCommands = [
   'dev',
   'format',
   'help',
+  'init',
   'lint',
   'list',
   'run',

@@ -1,5 +1,5 @@
 /**
- * bun-or command: Run with bun or given fallback such as npm, node
+ * bun-or command: Run with bun or given fallback such as node, npm, npx
  */
 const { execSync, spawn } = require('node:child_process')
 
@@ -21,7 +21,7 @@ module.exports = async function bunOr(props = {}) {
   const args = argv.slice(3) // Skip command name 
 
   if (!args.length) {
-    console.log(`This command runs bun or the given fallback such as npm, npx, node, tsx
+    console.log(`This command runs bun or the given fallback such as node, npm, npx
 Usage: roll bun-or [command] [...options]
 Example:
   roll bun-or tsx server.ts
