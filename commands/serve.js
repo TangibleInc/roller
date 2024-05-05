@@ -1,5 +1,6 @@
 const path = require('path')
 const http = require('http')
+const { execSync } = require('child_process')
 const getPort = require('../utils/getPort')
 const handler = require('serve-handler')
 
@@ -12,11 +13,31 @@ async function serve({ config }) {
     dir = '.',
     port = 3000,
     node, // Require script file path
+    bun, // Script .ts for Bun
   } = serveOptions
 
-  if (node) {
-    const scriptPath = path.join(rootDir, node)
+  const scriptPath = path.join(rootDir, node || bun)
 
+  if (bun) {
+    const command = isDev ? 'bun run --watch' : 'bun run'
+    const scriptOptions = {
+      cwd: process.cwd(),
+      stdio: [`inherit`, `inherit`, `inherit`],
+      env: {
+        ...process.env,
+        NODE_ENV: isDev ? 'development' : 'production',
+      },
+    }
+    try {
+      execSync(`${command} ${scriptPath}`, scriptOptions)
+    } catch (e) {
+      // Error message already output by child process
+      process.exit(1)
+    }
+    return
+  }
+
+  if (node) {
     /**
      * Use nodemon for reloadable server - Previously: require( scriptPath )
      * @see https://github.com/remy/nodemon/blob/main/doc/requireable.md
