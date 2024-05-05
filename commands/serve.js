@@ -16,7 +16,7 @@ async function serve({ config }) {
     bun, // Script .ts for Bun
   } = serveOptions
 
-  const scriptPath = path.join(rootDir, node || bun)
+  const scriptPath = path.join(rootDir, node || bun || '')
 
   if (bun) {
     const command = isDev ? 'bun run --watch' : 'bun run'
