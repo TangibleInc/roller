@@ -1,12 +1,14 @@
 /**
  * Run command: Build a script with ESBuild and run
  */
-const esbuild = require('esbuild')
+const path = require('path')
 const { existsSync } = require('node:fs')
 const { execSync } = require('node:child_process')
 // const fs = require('node:fs')
 // const url = require('node:url')
 const { join: joinPath, isAbsolute } = require('node:path')
+const esbuild = require('esbuild')
+const { nodeExternalsPlugin } = require('esbuild-node-externals');
 // const bunOr = require('./bun-or')
 
 module.exports = async function runEsbuild(props = {}) {
@@ -47,7 +49,8 @@ Example:
 
   try {
     const result = await esbuild.build({
-      entryPoints: [entry_point],
+      // absWorkingDir: path.dirname(argv_entry_point),
+      entryPoints: [argv_entry_point],
       bundle: true,
       splitting: false,
       treeShaking: true,
@@ -59,12 +62,12 @@ Example:
       // sourcemap: `inline`, // enable this when https://github.com/nodejs/node/issues/46454 gets fixed
       write: false,
       external: [
-        '*',
+        // '*',
       ],
       define: {
         'process.env': JSON.stringify(process.env),
       },
-      plugins: [],
+      plugins: [nodeExternalsPlugin()],
     })
 
     const bundled_js_buffer = Buffer.concat(
@@ -80,6 +83,8 @@ Example:
     }, {})
     try {
       execSync(`node --enable-source-maps --input-type=module`, {
+        // For resolving imports
+        cwd: path.dirname(argv_entry_point),
         input: bundled_js_buffer,
         stdio: [`pipe`, `inherit`, `inherit`],
         env: {
