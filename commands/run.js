@@ -50,8 +50,39 @@ Example:
 
   const argv = [node, argv_entry_point, ...rest]
 
+  const env = argv.reduce((env, arg) => {
+    if (arg.includes('=')) {
+      const [key, value] = arg.split('=')
+      env[key] = value
+    }
+    return env
+  }, {})
+
+  const watchMode = rest.includes('--watch')
+
+  function runBuiltResult(result) {
+    const bundled_js_buffer = Buffer.concat(
+      result.outputFiles.map(({ contents }) => contents)
+    )
+
+    try {
+      execSync(`node --enable-source-maps --input-type=module`, {
+        cwd: projectPath,
+        input: bundled_js_buffer,
+        stdio: [`pipe`, `inherit`, `inherit`],
+        env: {
+          ...process.env,
+          ...env,
+        },
+      })
+    } catch (e) {
+      // Error message already output by child process
+      process.exit(1)
+    }
+  }
+
   try {
-    const result = await esbuild.build({
+    const context = await esbuild.context({
       // absWorkingDir: path.dirname(argv_entry_point),
       entryPoints: [argv_entry_point],
       bundle: true, // Support importing other TypeScript files
@@ -70,33 +101,22 @@ Example:
       define: {
         'process.env': JSON.stringify(process.env),
       },
-      plugins: [nodeExternalsPlugin()],
+      plugins: [
+        nodeExternalsPlugin(),
+        {
+          name: 'run',
+          setup(build) {
+            build.onEnd(runBuiltResult)
+          },
+        },
+      ],
     })
 
-    const bundled_js_buffer = Buffer.concat(
-      result.outputFiles.map(({ contents }) => contents)
-    )
-
-    const env = argv.reduce((env, arg) => {
-      if (arg.includes('=')) {
-        const [key, value] = arg.split('=')
-        env[key] = value
-      }
-      return env
-    }, {})
-    try {
-      execSync(`node --enable-source-maps --input-type=module`, {
-        cwd: projectPath,
-        input: bundled_js_buffer,
-        stdio: [`pipe`, `inherit`, `inherit`],
-        env: {
-          ...process.env,
-          ...env,
-        },
-      })
-    } catch (e) {
-      // Error message already output by child process
-      process.exit(1)
+    if (watchMode) {
+      await context.watch()
+    } else {
+      await context.rebuild()
+      await context.dispose()
     }
   } catch (error) {
     console.error(error.message)
