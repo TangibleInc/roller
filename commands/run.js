@@ -8,11 +8,15 @@ const { execSync } = require('node:child_process')
 // const url = require('node:url')
 const { join: joinPath, isAbsolute } = require('node:path')
 const esbuild = require('esbuild')
-const { nodeExternalsPlugin } = require('esbuild-node-externals');
+const { nodeExternalsPlugin } = require('esbuild-node-externals')
 // const bunOr = require('./bun-or')
 
 module.exports = async function runEsbuild(props = {}) {
-  const { argv: _argv = process.argv, bun = true } = props
+  const {
+    argv: _argv = process.argv,
+    projectPath = process.cwd(),
+    bun = true,
+  } = props
 
   const [node, , , entry_point, ...rest] = _argv
 
@@ -39,7 +43,6 @@ Example:
     ? entry_point
     : joinPath(cwd, entry_point)
 
-
   if (!existsSync(argv_entry_point)) {
     console.log('File not found:', argv_entry_point)
     return
@@ -51,7 +54,7 @@ Example:
     const result = await esbuild.build({
       // absWorkingDir: path.dirname(argv_entry_point),
       entryPoints: [argv_entry_point],
-      bundle: true,
+      bundle: true, // Support importing other TypeScript files
       splitting: false,
       treeShaking: true,
       platform: `node`,
@@ -83,13 +86,12 @@ Example:
     }, {})
     try {
       execSync(`node --enable-source-maps --input-type=module`, {
-        // For resolving imports
-        cwd: path.dirname(argv_entry_point),
+        cwd: projectPath,
         input: bundled_js_buffer,
         stdio: [`pipe`, `inherit`, `inherit`],
         env: {
           ...process.env,
-          ...env
+          ...env,
         },
       })
     } catch (e) {
