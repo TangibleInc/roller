@@ -77,7 +77,7 @@ Example:
       })
     } catch (e) {
       // Error message already output by child process
-      process.exit(1)
+      return e
     }
   }
 
@@ -106,7 +106,12 @@ Example:
         {
           name: 'run',
           setup(build) {
-            build.onEnd(runBuiltResult)
+            build.onEnd(result => {
+              const error = runBuiltResult(result)
+              if (error) {
+                context.dispose().finally(() => process.exit(1))
+              }
+            })
           },
         },
       ],
