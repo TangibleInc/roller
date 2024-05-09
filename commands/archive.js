@@ -55,7 +55,10 @@ module.exports = async function archive({ config }) {
       '.wp-env.json',
       '.wp-env.override.json',
       'yarn.lock',
-    ],
+    ].map(f => (!f.startsWith('/') && !f.startsWith('./'))
+      ? '**/' + f
+      : f
+    ),
   })
 
   console.log('Files to archive:', files)
@@ -80,6 +83,11 @@ module.exports = async function archive({ config }) {
 
   // https://github.com/archiverjs/node-archiver
   const archivePath = path.join(rootDir, dest)
+
+  await fs.mkdir(path.dirname(archivePath), {
+    recursive: true // Ensure parent directories, and no error when dir exists
+  })
+
   const output = fs.createWriteStream(archivePath)
   const archive = archiver('zip')
 
