@@ -10,6 +10,7 @@ const { join: joinPath, isAbsolute } = require('node:path')
 const esbuild = require('esbuild')
 const { nodeExternalsPlugin } = require('esbuild-node-externals')
 // const bunOr = require('./bun-or')
+const prompt = require('../utils/prompt')
 
 module.exports = async function runEsbuild(props = {}) {
   const {
@@ -81,8 +82,39 @@ Example:
     }
   }
 
+  let context
+
+  const waitNextRun = async () => {
+    console.log(
+      '..Waiting for file changes - Press CTRL+C to exit, or enter to run again'
+    )
+    if (await prompt() === false) {
+      process.exit()
+    } else {
+      await context.rebuild()
+    }
+  }
+  const runnerPlugin = {
+    name: 'run',
+    setup(build) {
+      build.onEnd((result) => {
+        const error = runBuiltResult(result)
+        if (error) {
+          context.dispose().finally(() => process.exit(1))
+          return
+        }
+        if (watchMode) {
+          waitNextRun().catch((e) => {
+            console.error(e)
+            process.exit(1)
+          })
+        }
+      })
+    },
+  }
+
   try {
-    const context = await esbuild.context({
+    context = await esbuild.context({
       // absWorkingDir: path.dirname(argv_entry_point),
       entryPoints: [argv_entry_point],
       bundle: true, // Support importing other TypeScript files
@@ -101,20 +133,7 @@ Example:
       define: {
         'process.env': JSON.stringify(process.env),
       },
-      plugins: [
-        nodeExternalsPlugin(),
-        {
-          name: 'run',
-          setup(build) {
-            build.onEnd(result => {
-              const error = runBuiltResult(result)
-              if (error) {
-                context.dispose().finally(() => process.exit(1))
-              }
-            })
-          },
-        },
-      ],
+      plugins: [nodeExternalsPlugin(), runnerPlugin],
     })
 
     if (watchMode) {

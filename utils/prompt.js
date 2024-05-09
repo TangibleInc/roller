@@ -1,7 +1,7 @@
 // https://nodejs.org/api/readline.html
 const readline = require('readline')
 
-function prompt(query) {
+function prompt(query = '') {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
