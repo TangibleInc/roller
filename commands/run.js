@@ -51,13 +51,15 @@ Example:
 
   const argv = [node, argv_entry_point, ...rest]
 
-  const env = argv.reduce((env, arg) => {
+  /**
+   * A way to pass environment variables: roll run index.ts NODE_ENV=test
+   */
+  for (const arg of rest) {
     if (arg.includes('=')) {
       const [key, value] = arg.split('=')
-      env[key] = value
+      process.env[key] = value
     }
-    return env
-  }, {})
+  }
 
   const watchMode = rest.includes('--watch')
 
@@ -71,10 +73,7 @@ Example:
         cwd: projectPath,
         input: bundled_js_buffer,
         stdio: [`pipe`, `inherit`, `inherit`],
-        env: {
-          ...process.env,
-          ...env,
-        },
+        env: process.env,
       })
     } catch (e) {
       // Error message already output by child process
@@ -99,15 +98,14 @@ Example:
     setup(build) {
       build.onEnd((result) => {
         const error = runBuiltResult(result)
-        if (error) {
-          context.dispose().finally(() => process.exit(1))
-          return
-        }
         if (watchMode) {
           waitNextRun().catch((e) => {
             console.error(e)
-            process.exit(1)
+            // process.exit(1)
           })
+        } else if (error) {
+          context.dispose().finally(() => process.exit(1))
+          return
         }
       })
     },
@@ -145,6 +143,8 @@ Example:
   } catch (error) {
     console.error(error.message)
     console.error(error.stack)
-    process.exit(1)
+    if (!watchMode) {
+      process.exit(1)
+    }
   }
 }
