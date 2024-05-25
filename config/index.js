@@ -115,7 +115,14 @@ async function createConfig({ commandName, subproject }) {
     lint,
     serve,
     archive,
+    map = true // or 'dev'
   } = configJson instanceof Function ? await configJson() : configJson
+
+  for (const task of tasks) {
+    if (typeof task.map==='undefined') {
+      task.map = map
+    }
+  }
 
   // Ensure project dependencies are installed
   if (

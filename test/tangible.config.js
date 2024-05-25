@@ -1,9 +1,10 @@
 module.exports = {
+  map: 'dev', // Source map during development only - Remove for production
   build: [
     {
       src: 'src/index.jsx',
       dest: 'build/test.min.js',
-      react: 'react'
+      react: 'react',
     },
     {
       src: 'src/index.jsx',
@@ -40,7 +41,6 @@ module.exports = {
     async function({ config, task = {} }) {
       console.log('Custom build function')
     }
-
   ],
   format: 'src',
   serve: {
