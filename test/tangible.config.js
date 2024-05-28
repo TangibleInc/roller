@@ -1,10 +1,10 @@
 module.exports = {
-  map: 'dev', // Source map during development only - Remove for production
   build: [
     {
       src: 'src/index.jsx',
       dest: 'build/test.min.js',
       react: 'react',
+      map: true, // Test override global default (source map during development only, remove for production)
     },
     {
       src: 'src/index.jsx',

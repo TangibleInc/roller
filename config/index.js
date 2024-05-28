@@ -115,7 +115,7 @@ async function createConfig({ commandName, subproject }) {
     lint,
     serve,
     archive,
-    map = true // or 'dev'
+    map = 'dev' // Global default, can override per task
   } = configJson instanceof Function ? await configJson() : configJson
 
   for (const task of tasks) {

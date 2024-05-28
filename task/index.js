@@ -59,9 +59,9 @@ function createTaskConfigs({ config, task }) {
         : task.dest,
     sourcemap: task.task === 'sass'
       ? false
-      : task.map === 'dev'
+      : task.map === 'dev' // See ../config for global default
         ? isDev // Only during development
-        : task.map !== false // true by default
+        : task.map !== false
     ,
 
     // Use default source map name to support dynamic exports and code splitting
