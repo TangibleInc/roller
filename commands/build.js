@@ -3,6 +3,7 @@
  */
 
 const path = require('path')
+const fs = require('fs/promises')
 const rollup = require('rollup')
 const getFileSize = require('../utils/getFileSize')
 const displayError = require('../utils/displayError')
@@ -15,7 +16,7 @@ async function build(props) {
     return await inputOptions.build(props)
   }
 
-  const { cwd, rootDir } = config
+  const { cwd, rootDir, isDev } = config
 
   console.log('..Building from', path.relative(cwd, inputOptions.input))
 
@@ -41,6 +42,13 @@ async function build(props) {
     // , 'in', (duration / 1000).toFixed(2)+'s'
     `(${fileSize})`
   )
+
+  if (task.map === 'dev') {
+    // Remove source maps for production
+    await fs.rm(`${builtFile}.map`, {
+      force: true, // exceptions will be ignored if path does not exist
+    })
+  }
 }
 
 module.exports = build
