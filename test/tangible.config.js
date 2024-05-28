@@ -3,7 +3,8 @@ module.exports = {
     {
       src: 'src/index.jsx',
       dest: 'build/test.min.js',
-      react: 'react'
+      react: 'react',
+      map: true, // Test override global default (source map during development only, remove for production)
     },
     {
       src: 'src/index.jsx',
@@ -40,7 +41,6 @@ module.exports = {
     async function({ config, task = {} }) {
       console.log('Custom build function')
     }
-
   ],
   format: 'src',
   serve: {
