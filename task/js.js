@@ -48,23 +48,23 @@ function createOptionsForTaskType(config, task) {
 
   const aliases = task.alias
     ? Object.keys(task.alias).reduce((obj, key) => {
-      let target = task.alias[key]
+        let target = task.alias[key]
 
-      // Shortcut to alias import to global variable
-      if (target.indexOf('window.') === 0) {
-        importToGlobal[key] = target.replace('window.', '')
+        // Shortcut to alias import to global variable
+        if (target.indexOf('window.') === 0) {
+          importToGlobal[key] = target.replace('window.', '')
+          return obj
+        }
+
+        // Transform relative to absolute path
+        if (target[0] === '.') {
+          target = path.join(rootDir, target)
+        }
+
+        obj[key] = target
+
         return obj
-      }
-
-      // Transform relative to absolute path
-      if (target[0] === '.') {
-        target = path.join(rootDir, target)
-      }
-
-      obj[key] = target
-
-      return obj
-    }, {})
+      }, {})
     : {}
 
   // Transform global variables into import statements
@@ -153,8 +153,6 @@ function createOptionsForTaskType(config, task) {
     } else {
       importToGlobal['@wordpress/*'] = 'wp.*'
     }
-
-
   } else if (importToGlobal.react) {
     /**
      * Replace import 'react' with global variable
@@ -171,35 +169,42 @@ function createOptionsForTaskType(config, task) {
   /**
    * Bundle dynamic imports inline by default, unless using ES Module format
    * and dynamic export file names are defined to support code splitting.
-   * 
+   *
    * For example: { format: 'es', assetFileNames: 'build/prefix-[name].[ext]' }
-   * 
+   *
    * @see https://bitbucket.org/tangibleinc/roller/issues/2/invalid-value-iife-for-option-outputformat
    * @see https://rollupjs.org/configuration-options/#output-assetfilenames
    */
   if (!task.output) task.output = {}
-  if (!task.output.format && typeof task.output.inlineDynamicImports==='undefined') {
+  if (
+    !task.output.format &&
+    typeof task.output.inlineDynamicImports === 'undefined'
+  ) {
     task.output.inlineDynamicImports = true
   }
 
+  const isEsModule = task.type === 'module'
+
   // Rollup input options
   return {
-
     plugins: [
       // Plugins for JavaScript
 
-      /**
-       * CommonJS plugin moved from below ESBuild to top of list,
-       * to better handle module and exports. It also means JSX is
-       * only supported in files with .jsx or .tsx file extension.
-       */
-      commonjs({
+      ...(isEsModule
+        ? []
+        : [
+            /**
+             * CommonJS plugin moved from below ESBuild to top of list,
+             * to better handle module and exports. It also means JSX is
+             * only supported in files with .jsx or .tsx file extension.
+             */
+            commonjs({
+              preserveSymlinks: true,
 
-        preserveSymlinks: true,
-
-        // https://github.com/rollup/plugins/tree/master/packages/commonjs#transformmixedesmodules
-        transformMixedEsModules: true,
-      }),
+              // https://github.com/rollup/plugins/tree/master/packages/commonjs#transformmixedesmodules
+              transformMixedEsModules: true,
+            }),
+          ]),
 
       /**
        * Support styles import from JS
@@ -234,8 +239,8 @@ function createOptionsForTaskType(config, task) {
         entries: aliases,
         // https://github.com/rollup/plugins/tree/master/packages/alias#custom-resolvers
         customResolver: nodeResolve({
-          extensions: ['.js', '.jsx', '.ts', '.tsx']
-        })
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        }),
       }),
 
       injectProcessEnv(processEnv),
@@ -264,7 +269,7 @@ function createOptionsForTaskType(config, task) {
         target: 'es2020', // default, or 'es20XX', 'esnext'
 
         sourceMap: true,
-        minify: !isDev,
+        minify: !isDev && !isEsModule,
 
         // Optionally preserve symbol names during minification
         // https://esbuild.github.io/api/#keep-names
@@ -326,9 +331,8 @@ function createOptionsForTaskType(config, task) {
        */
       ...(Object.keys(importToGlobal).length
         ? [
-            externalGlobals(id => {
+            externalGlobals((id) => {
               for (const key of Object.keys(importToGlobal)) {
-
                 // Name of global variable, such as `wp.element`
                 const varName = importToGlobal[key]
 
@@ -351,9 +355,11 @@ function createOptionsForTaskType(config, task) {
                 // Strangely, ID can have null character at beginning
                 id = id.replace(/^\0/, '')
 
-                if (id.indexOf(`/node_modules/${key}/`) < 0
-                  && (id !== `${key}?commonjs-external`)
-                ) continue
+                if (
+                  id.indexOf(`/node_modules/${key}/`) < 0 &&
+                  id !== `${key}?commonjs-external`
+                )
+                  continue
 
                 // Provide missing property "default"
                 const fn = `function() { if (${varName} && !${varName}.default) ${varName}.default = ${varName}; return ${varName} }`
@@ -369,7 +375,7 @@ function createOptionsForTaskType(config, task) {
 
                 return varName
               }
-            })
+            }),
           ]
         : []),
 

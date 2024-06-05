@@ -57,18 +57,17 @@ function createTaskConfigs({ config, task }) {
       task.task === 'sass'
         ? task.dest + '.tmp' // PostCSS emits its own file
         : task.dest,
-    sourcemap: task.task === 'sass'
-      ? false
-      : task.map === 'dev' // See ../config for global default
-        ? isDev // Only during development
-        : task.map !== false
-    ,
-
+    sourcemap:
+      task.task === 'sass'
+        ? false
+        : task.map === 'dev' // See ../config for global default
+          ? isDev // Only during development
+          : task.map !== false,
     // Use default source map name to support dynamic exports and code splitting
     // sourcemapFile: task.dest + '.map',
 
     // cjs, es, iife, umd
-    format: task.task === 'sass' ? 'es' : 'iife',
+    format: task.task === 'sass' || task.type === 'module' ? 'es' : 'iife',
 
     // For styles plugin
     assetFileNames: task.task === 'sass' ? '[name]' : '[name].module[extname]',
