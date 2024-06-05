@@ -59,7 +59,7 @@ async function createConfig({ commandName, subproject }) {
 
     // Optionally run command "init" to create new config
     const answer = await prompt(
-      'Press enter to create a new configuration file, tnagible.config.js, or CTRL+C to exit\n'
+      `Press enter to create a new configuration file, ${configJsFileName}, or CTRL+C to exit\n`
     )
     console.log()
     if (answer === false) {
