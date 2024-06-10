@@ -46,7 +46,7 @@ async function createConfig({ commandName, subproject }) {
   }
 
   const packageJsonPath = path.join(rootDir, 'package.json')
-  const packageJson = {}
+  let packageJson = {}
 
   try {
     packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'))
