@@ -51,7 +51,9 @@ module.exports = {
     src: [
       '**/*',
       '!**/src',
-      '!**/test'
+      '!**/test',
+      '!build/project.zip',
+      '!build/roller-test',
     ],
     dest: 'build/project.zip',
     rootFolder: 'roller-test'

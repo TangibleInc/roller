@@ -4,11 +4,12 @@
 const path = require('path')
 const glob = require('fast-glob')
 const fs = require('fs-extra')
-const archiver = require('archiver')
+const { Zip } = require('zip-lib')
+const fileExists = require('../utils/fileExists')
 
 module.exports = async function archive({ config }) {
   if (!config.archive) {
-    console.log('Define property "archive" in tangible.config.js')
+    console.log('Required property "archive" in tangible.config.js')
     console.log(`Example:
 {
   archive: {
@@ -55,10 +56,7 @@ module.exports = async function archive({ config }) {
       '.wp-env.json',
       '.wp-env.override.json',
       'yarn.lock',
-    ].map(f => (!f.startsWith('/') && !f.startsWith('./'))
-      ? '**/' + f
-      : f
-    ),
+    ].map((f) => (!f.startsWith('/') && !f.startsWith('./') ? '**/' + f : f)),
   })
 
   console.log('Files to archive:', files)
@@ -81,47 +79,31 @@ module.exports = async function archive({ config }) {
   console.log('Press enter to continue, or CTRL + C to stop')
   await waitKeyPressed()
 
-  // https://github.com/archiverjs/node-archiver
+  /**
+   * https://github.com/fpsqdb/zip-lib
+   */
+
+  const zip = new Zip()
   const archivePath = path.join(rootDir, dest)
 
   await fs.mkdir(path.dirname(archivePath), {
-    recursive: true // Ensure parent directories, and no error when dir exists
+    recursive: true, // Ensure parent directories, and no error when dir exists
   })
 
-  const output = fs.createWriteStream(archivePath)
-  const archive = archiver('zip')
-
-  const archiveDir = path.dirname(archivePath)
-  await fs.ensureDir(archiveDir)
+  if (await fileExists(archivePath)) {
+    await fs.rm(archivePath)
+  }
 
   await new Promise((resolve, reject) => {
-    output.on('close', function () {
-      console.log(archive.pointer(), 'total bytes')
-      resolve()
-    })
-
-    archive.on('warning', function (err) {
-      if (err.code === 'ENOENT') {
-        console.log(err)
-      } else {
-        reject(err) // throw err
-      }
-    })
-
-    archive.on('error', function (err) {
-      reject(err) // throw err
-    })
-
-    archive.pipe(output)
 
     for (const file of files) {
-      const name = archive.file(path.join(rootDir, file), { name:
-        archiveRootFolder
-          ? path.join(archiveRootFolder, file)
-          : file
-      })
+      const sourceFile = path.join(rootDir, file)
+      const targetFile = archiveRootFolder
+        ? path.join(archiveRootFolder, file)
+        : file
+      zip.addFile(sourceFile, targetFile)
     }
 
-    archive.finalize()
+    zip.archive(archivePath).then(resolve, reject)
   })
 }

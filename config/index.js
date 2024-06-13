@@ -111,15 +111,17 @@ async function createConfig({ commandName, subproject }) {
 
   const {
     build: tasks = [],
+    map = 'dev', // Global default, can override per task
+
     format,
     lint,
     serve,
     archive,
-    map = 'dev' // Global default, can override per task
+    install,
   } = configJson instanceof Function ? await configJson() : configJson
 
   for (const task of tasks) {
-    if (typeof task.map==='undefined') {
+    if (typeof task.map === 'undefined') {
       task.map = map
     }
   }
@@ -150,6 +152,7 @@ async function createConfig({ commandName, subproject }) {
   const isDev = env === 'development'
 
   return {
+
     cwd,
     rootDir,
     env,
@@ -175,6 +178,7 @@ async function createConfig({ commandName, subproject }) {
     lint,
     serve,
     archive,
+    install,
   }
 }
 
