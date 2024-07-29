@@ -247,6 +247,25 @@ function createOptionsForTaskType(config, task) {
 
       replace(replaceStrings),
 
+      /**
+       * Fix import.meta.url inside web workers
+       * @see https://github.com/vitejs/vite/issues/4646#issuecomment-905279744
+       */
+      ...(!task.worker
+        ? []
+        : [
+            {
+              name: 'worker-env',
+              resolveImportMeta(prop, ctx) {
+                if (prop !== 'url') return null
+                return `new URL('${ctx.chunkId}', location.origin + '${
+                  // (config.base[0] == '/' ? '' : '/')+config.base
+                  ''
+                }').href`
+              },
+            },
+          ]),
+
       // https://github.com/rollup/plugins/tree/master/packages/node-resolve
       nodeResolve({
         modulePaths,
