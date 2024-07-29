@@ -374,10 +374,11 @@ function createOptionsForTaskType(config, task) {
                 if (type === 'commonjs-wrapped') {
                   return `{ __require: ${fn} }`
                 }
-                if (type === 'commonjs-external' || type === 'commonjs-proxy') {
-                  return `(${fn})()`
-                }
-                if(type === 'commonjs-module') {
+                if (
+                  type === 'commonjs-external' ||
+                  type === 'commonjs-proxy' ||
+                  type === 'commonjs-module'
+                ) {
                   return `(${fn})()`
                 }
 
