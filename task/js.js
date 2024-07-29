@@ -362,14 +362,23 @@ function createOptionsForTaskType(config, task) {
                   continue
 
                 // Provide missing property "default"
-                const fn = `function() { if (${varName} && !${varName}.default) ${varName}.default = ${varName}; return ${varName} }`
+                const fn = `function() {
+                  if (${varName} && !${varName}.default) ${varName}.default = ${varName};
+                  if (${varName} && !${varName}.__module) ${varName}.__module = { exports: ${varName}, default: ${varName} };
+                  if (${varName} && '${varName}' === 'wp.element' && !${varName}.jsx) ${varName}.jsx = ${varName}.createElement;
+                  return ${varName};
+                }`
 
                 const type = id.split('?')[1]
 
                 if (type === 'commonjs-wrapped') {
                   return `{ __require: ${fn} }`
                 }
-                if (type === 'commonjs-external' || type === 'commonjs-proxy') {
+                if (
+                  type === 'commonjs-external' ||
+                  type === 'commonjs-proxy' ||
+                  type === 'commonjs-module'
+                ) {
                   return `(${fn})()`
                 }
 
