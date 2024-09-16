@@ -17,6 +17,8 @@ Commands:
   serve    Start static file server
   archive  Create zip package
   run      Run given TypeScript file
+  install  Install any dependencies defined in config
+  update   Update any dependencies defined in config
 
 Documentation: ${homepage}
 `)

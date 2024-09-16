@@ -75,7 +75,7 @@ async function serve({ config }) {
     public: path.join(rootDir, dir),
     symlinks: true,
     directoryListing: true,
-    // trailingSlash: true,
+    trailingSlash: true,
     // cleanUrls: false,
   }
 

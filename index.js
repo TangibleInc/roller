@@ -15,6 +15,7 @@ const supportedCommands = [
   'list',
   'run',
   'serve',
+  'update',
 ]
 
 ;(async function run(commandName = 'help', ...args) {

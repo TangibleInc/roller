@@ -17,6 +17,7 @@ const injectProcessEnv = require('rollup-plugin-inject-process-env')
  * See [Support for Rollup v3](https://github.com/Anidetrix/rollup-plugin-styles/issues/224)
  */
 const styles = require('@ironkinoko/rollup-plugin-styles')
+const postcssUrl = require('postcss-url')
 const kebabToCamel = require('../utils/kebabToCamel')
 const raw = require('../utils/rollupPluginRaw')
 
@@ -218,6 +219,17 @@ function createOptionsForTaskType(config, task) {
         mode: 'extract',
         sourceMap: true,
         minimize: true,
+        plugins: [
+          postcssUrl({
+            url: asset => asset.url // Ignore url()
+            // url: 'inline',
+            // maxSize: 100, // KB
+            // fallback: () => {
+
+            // },
+            // assetsPath: path.dirname(path.join(rootDir, task.dist ?? 'build'))
+          })
+        ],
         ...(task.styles || {}),
       }),
 
@@ -284,6 +296,9 @@ function createOptionsForTaskType(config, task) {
       esbuild({
         include: /\.[jt]sx?$/,
         exclude: /node_modules/,
+
+        // https://esbuild.github.io/api/#platform
+        platform: task.platform ?? 'browser', // browser (default), node, or neutral
 
         target: 'es2020', // default, or 'es20XX', 'esnext'
 

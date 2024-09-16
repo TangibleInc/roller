@@ -15,8 +15,10 @@ async function createConfig({ commandName, subproject }) {
 
   let configJsPath = path.join(rootDir, configJsFileName)
 
+  const isConfigRequired = commandName!=='run'
+
   // Commands that optionally accept a subproject (module) name
-  if (subproject) {
+  if (isConfigRequired && subproject) {
     const name = subproject
 
     // Child project directory
@@ -36,7 +38,7 @@ async function createConfig({ commandName, subproject }) {
       // Child project config file
       configJsPath = path.join(rootDir, `tangible.config.${name}.js`)
 
-      if (name.includes('/') || !fs.existsSync(configJsPath)) {
+      if ((name.includes('/') || !fs.existsSync(configJsPath)) && isConfigRequired) {
         console.warn(
           `Couldn't find project directory "${name}" with tangible.config.js`
         )
@@ -54,7 +56,7 @@ async function createConfig({ commandName, subproject }) {
     // OK
   }
 
-  if (!fs.existsSync(configJsPath)) {
+  if (isConfigRequired && !fs.existsSync(configJsPath)) {
     if (commandName === 'help') return // No message for help screen
 
     // Optionally run command "init" to create new config
@@ -104,8 +106,17 @@ async function createConfig({ commandName, subproject }) {
    */
   const configJsPathUrl = url.pathToFileURL(configJsPath).href
 
-  const { default: configJson } = await import(configJsPathUrl)
-  // const configJson = require(configJsPath) // Previously with CommonJS
+  let configJson = {}
+
+  try {
+    configJson = (await import(configJsPathUrl)).default
+    // const configJson = require(configJsPath) // Previously with CommonJS
+  } catch(e) {
+    // OK
+    if (isConfigRequired) {
+      console.log(e)
+    }
+  }
 
   const { name = '', dependencies = {}, devDependencies = {} } = packageJson
 

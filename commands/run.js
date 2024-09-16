@@ -2,7 +2,7 @@
  * Run command: Build a script with ESBuild and run
  */
 const path = require('path')
-const { existsSync } = require('node:fs')
+const { existsSync, readFileSync } = require('node:fs')
 const { execSync } = require('node:child_process')
 // const fs = require('node:fs')
 // const url = require('node:url')
@@ -11,6 +11,35 @@ const esbuild = require('esbuild')
 const { nodeExternalsPlugin } = require('esbuild-node-externals')
 // const bunOr = require('./bun-or')
 const prompt = require('../utils/prompt')
+
+/**
+ * Replace __dirname based on source file path
+ * @see https://github.com/evanw/esbuild/issues/859#issuecomment-1335102284
+ */
+
+const nodeModules = new RegExp(
+  /^(?:.*[\\/])?node_modules(?:\/(?!postgres-migrations).*)?$/,
+)
+
+const dirnamePlugin = {
+  name: 'dirname',
+  setup(build) {
+    build.onLoad({ filter: /.*/ }, ({ path: filePath }) => {
+      if (!filePath.match(nodeModules)) {
+        let contents = readFileSync(filePath, 'utf8')
+        const loader = path.extname(filePath).substring(1)
+        const dirname = path.dirname(filePath)
+        contents = contents
+          .replaceAll('__dirname', `"${dirname}"`)
+          .replaceAll('__filename', `"${filePath}"`)
+        return {
+          contents,
+          loader,
+        }
+      }
+    })
+  },
+}
 
 module.exports = async function runEsbuild(props = {}) {
   const {
@@ -65,7 +94,7 @@ Example:
 
   function runBuiltResult(result) {
     const bundled_js_buffer = Buffer.concat(
-      result.outputFiles.map(({ contents }) => contents)
+      result.outputFiles.map(({ contents }) => contents),
     )
 
     try {
@@ -85,9 +114,9 @@ Example:
 
   const waitNextRun = async () => {
     console.log(
-      '..Waiting for file changes - Press CTRL+C to exit, or enter to run again'
+      '..Waiting for file changes - Press CTRL+C to exit, or enter to run again',
     )
-    if (await prompt() === false) {
+    if ((await prompt()) === false) {
       process.exit()
     } else {
       await context.rebuild()
@@ -131,7 +160,7 @@ Example:
       define: {
         'process.env': JSON.stringify(process.env),
       },
-      plugins: [nodeExternalsPlugin(), runnerPlugin],
+      plugins: [nodeExternalsPlugin(), dirnamePlugin, runnerPlugin],
     })
 
     if (watchMode) {

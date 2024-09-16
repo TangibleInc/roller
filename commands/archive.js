@@ -2,6 +2,7 @@
  * Archive command: Create a zip package of the project
  */
 const path = require('path')
+const url = require('url')
 const glob = require('fast-glob')
 const fs = require('fs-extra')
 const { Zip } = require('zip-lib')
@@ -30,7 +31,8 @@ module.exports = async function archive({ config }) {
     src,
     dest,
     exclude = [],
-    rootFolder: archiveRootFolder,
+    rootFolder: archiveRootFolder = config.archive.root, // Alias
+    configs = [],
   } = config.archive
 
   if (!src || !dest) {
@@ -38,7 +40,29 @@ module.exports = async function archive({ config }) {
     return
   }
 
-  const from = [...(Array.isArray(src) ? src : [src]), '.git', 'node_modules']
+  for (const childConfig of configs) {
+    const childConfigPath = path.join(rootDir, childConfig)
+    const relativeChildRootPath = path.relative(rootDir, path.dirname(childConfigPath))
+
+    /**
+     * ES Module loading with abolute path fails on Windows unless it's
+     * converted to URL: https://github.com/nodejs/node/issues/31710
+     */
+    const configJsPathUrl = url.pathToFileURL(childConfigPath).href
+
+    let configJson = {}
+    try {
+      configJson = (await import(configJsPathUrl)).default
+    } catch (e) {
+      console.warn('Child config not found', childConfigPath)
+    }
+
+    const relativeToChildFolder = (pattern) =>
+      `${relativeChildRootPath}/${pattern.replace('^/', '')}`
+
+    src.push(...(configJson?.archive?.src ?? []).map(relativeToChildFolder))
+    exclude.push(...(configJson?.archive?.exclude ?? []).map(relativeToChildFolder))
+  }
 
   const files = await glob(src, {
     cwd: rootDir,
@@ -95,7 +119,6 @@ module.exports = async function archive({ config }) {
   }
 
   await new Promise((resolve, reject) => {
-
     for (const file of files) {
       const sourceFile = path.join(rootDir, file)
       const targetFile = archiveRootFolder
