@@ -1,7 +1,7 @@
 /**
  * bun-or command: Run with bun or given fallback such as node, npm, npx
  */
-const { execSync, spawn } = require('node:child_process')
+import { execSync, spawn } from 'node:child_process'
 
 function run(command, args, silenceError = false) {
   return new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ function run(command, args, silenceError = false) {
   })
 }
 
-module.exports = async function bunOr(props = {}) {
+export default async function bunOr(props = {}) {
 
   const {
     argv = process.argv

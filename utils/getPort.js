@@ -2,8 +2,8 @@
  * From: https://raw.githubusercontent.com/sindresorhus/get-port/main/index.js
  * Convert ESM back to CommonJS
  */
-const net = require('net')
-const os = require('os')
+import net from 'net'
+import os from 'os'
 
 class Locked extends Error {
   constructor(port) {
@@ -102,13 +102,13 @@ async function getPorts(options) {
       for (const element of excludeIterable) {
         if (typeof element !== 'number') {
           throw new TypeError(
-            'Each item in the `exclude` option must be a number corresponding to the port you want excluded.'
+            'Each item in the `exclude` option must be a number corresponding to the port you want excluded.',
           )
         }
 
         if (!Number.isSafeInteger(element)) {
           throw new TypeError(
-            `Number ${element} in the exclude option is not a safe integer and can't be used`
+            `Number ${element} in the exclude option is not a safe integer and can't be used`,
           )
         }
       }
@@ -191,5 +191,5 @@ function portNumbers(from, to) {
   return generator(from, to)
 }
 
-module.exports = getPorts
-module.exports.portNumbers = portNumbers
+export default getPorts
+export { portNumbers }

@@ -1,10 +1,8 @@
-const format = require('./format')
+import format from './format.js'
 
-async function lint(props) {
+export default async function lint(props) {
   return await format({
     ...props,
     lint: true,
   })
 }
-
-module.exports = lint

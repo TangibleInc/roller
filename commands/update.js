@@ -1,6 +1,6 @@
-const installCommand = require('./install')
+import installCommand from './install.js'
 
-module.exports = async function updateCommand({ config }) {
+export default async function updateCommand({ config }) {
   return await installCommand({
     config: {
       ...config,

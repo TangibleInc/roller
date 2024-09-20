@@ -1,5 +1,13 @@
-function help() {
-  const { version, homepage, description } = require('../package.json')
+import path from 'path'
+import fs from 'fs-extra'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export default async function help() {
+  const { version, homepage, description } = await fs.readJson(
+    path.join(__dirname, '../package.json')
+  )
 
   console.log(`Tangible Roller ${version}
 
@@ -23,5 +31,3 @@ Commands:
 Documentation: ${homepage}
 `)
 }
-
-module.exports = help

@@ -1,14 +1,14 @@
 /**
  * Archive command: Create a zip package of the project
  */
-const path = require('path')
-const url = require('url')
-const glob = require('fast-glob')
-const fs = require('fs-extra')
-const { Zip } = require('zip-lib')
-const fileExists = require('../utils/fileExists')
+import path from 'path'
+import url from 'url'
+import glob from 'fast-glob'
+import fs from 'fs-extra'
+import { Zip } from 'zip-lib'
+import fileExists from '../utils/fileExists.js'
 
-module.exports = async function archive({ config }) {
+export default async function archive({ config }) {
   if (!config.archive) {
     console.log('Required property "archive" in tangible.config.js')
     console.log(`Example:

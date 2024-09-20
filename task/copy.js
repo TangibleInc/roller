@@ -1,8 +1,8 @@
-const path = require('path')
-const glob = require('fast-glob')
-const fs = require('fs-extra')
+import path from 'path'
+import glob from 'fast-glob'
+import fs from 'fs-extra'
 
-module.exports = () => ({
+export default () => ({
   async build({ config, task = {} }) {
     const { src, dest } = task
     if (!src || !dest) return

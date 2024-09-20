@@ -1,7 +1,7 @@
 // https://nodejs.org/api/readline.html
-const readline = require('readline')
+import readline from 'readline'
 
-function prompt(query = '') {
+export default function prompt(query = '') {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -18,5 +18,3 @@ function prompt(query = '') {
     })
   })
 }
-
-module.exports = prompt

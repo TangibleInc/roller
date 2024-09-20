@@ -1,6 +1,6 @@
-const createConfig = require('./config')
-const createTaskConfigs = require('./task')
-const createReloader = require('./lib/reloader')
+import createConfig from './config/index.js'
+import createTaskConfigs from './task/index.js'
+import createReloader from './lib/reloader/index.js'
 
 const supportedCommands = [
   'archive',
@@ -23,14 +23,14 @@ const supportedCommands = [
     commandName = 'help'
   }
 
-  const runCommand = require(`./commands/${commandName}`)
+  const runCommand = (await import(`./commands/${commandName}.js`)).default
 
   if (!(runCommand instanceof Function)) return
 
   process.env.NODE_ENV = commandName === 'dev' ? 'development' : 'production'
 
   const commandWithProjects = ['build', 'dev', 'format', 'lint'].includes(
-    commandName
+    commandName,
   )
 
   // Support specifying more than one project
@@ -108,22 +108,29 @@ async function runWithConfig({ commandName, runCommand, config }) {
   })
 
   // Run tasks in parallel
+
   return Promise.all(
-    tasks.map(function (task) {
-      const taskConfigs = createTaskConfigs({ config, task })
+    tasks.map((task) =>
+      (async () => {
+        const taskConfigs = await createTaskConfigs({ config, task })
 
-      if (!taskConfigs) {
-        console.log(`Task not supported:`, task)
-        return Promise.resolve() // Let other tasks continue
-      }
+        if (!taskConfigs) {
+          console.log(`Task not supported:`, task)
+          return Promise.resolve() // Let other tasks continue
+        }
 
-      return runCommand({
-        config,
-        task,
-        reloader,
-        ...taskConfigs,
-      }).catch(console.log)
-    })
+        try {
+          return await runCommand({
+            config,
+            task,
+            reloader,
+            ...taskConfigs,
+          })
+        } catch (e) {
+          console.log(e)
+        }
+      })(),
+    ),
   )
     .then(async function () {
       // All tasks done
@@ -135,7 +142,9 @@ async function runWithConfig({ commandName, runCommand, config }) {
       }
 
       if (config.serve) {
-        await require('./commands/serve')({
+        await (
+          await import('./commands/serve.js')
+        ).default({
           config,
           reloader,
         })

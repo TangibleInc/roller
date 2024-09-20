@@ -1,6 +1,6 @@
-const fs = require('fs')
+import fs from 'fs'
 
-async function getFileSize(filename) {
+export default async function getFileSize(filename) {
   try {
     const stats = await fs.promises.stat(filename)
     const { size } = stats
@@ -15,5 +15,3 @@ async function getFileSize(filename) {
     return 'NOT FOUND'
   }
 }
-
-module.exports = getFileSize

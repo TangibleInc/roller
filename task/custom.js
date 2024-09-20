@@ -1,4 +1,4 @@
-module.exports = () => ({
+export default () => ({
   async build(props) {
     const { config, task } = props
     if (!task.build) return

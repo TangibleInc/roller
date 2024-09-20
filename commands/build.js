@@ -2,13 +2,13 @@
  * Build for production
  */
 
-const path = require('path')
-const fs = require('fs/promises')
-const rollup = require('rollup')
-const getFileSize = require('../utils/getFileSize')
-const displayError = require('../utils/displayError')
+import path from 'path'
+import fs from 'fs/promises'
+import * as rollup from 'rollup'
+import getFileSize from '../utils/getFileSize.js'
+import displayError from '../utils/displayError.js'
 
-async function build(props) {
+export default async function build(props) {
   const { config, task, inputOptions, outputOptions } = props
 
   // Custom build task
@@ -50,5 +50,3 @@ async function build(props) {
     })
   }
 }
-
-module.exports = build

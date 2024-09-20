@@ -4,12 +4,12 @@
  * @see https://rollupjs.org/guide/en/#rollupwatch
  */
 
-const path = require('path')
-const rollup = require('rollup')
-const onExit = require('../utils/onExit')
-const displayError = require('../utils/displayError')
+import path from 'path'
+import * as rollup from 'rollup'
+import onExit from '../utils/onExit.js'
+import displayError from '../utils/displayError.js'
 
-async function dev(props) {
+export default async function dev(props) {
   const { config, task, inputOptions, outputOptions, reloader } = props
 
   // Custom build task
@@ -75,5 +75,3 @@ async function dev(props) {
     })
   })
 }
-
-module.exports = dev

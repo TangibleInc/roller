@@ -1,12 +1,12 @@
-const path = require('path')
-const fs = require('fs')
-const { readFile } = require('fs/promises')
-const url = require('url')
+import path from 'path'
+import fs from 'fs'
+import { readFile } from 'fs/promises'
+import url from 'url'
 
-const prompt = require('../utils/prompt')
-const run = require('../utils/run')
+import prompt from '../utils/prompt.js'
+import run from '../utils/run.js'
 
-async function createConfig({ commandName, subproject }) {
+export default async function createConfig({ commandName, subproject }) {
   const cwd = process.cwd()
   let rootDir = cwd
   let isChildProjectFolder = false
@@ -192,5 +192,3 @@ async function createConfig({ commandName, subproject }) {
     install,
   }
 }
-
-module.exports = createConfig

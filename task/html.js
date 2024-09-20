@@ -1,10 +1,10 @@
-const path = require('path')
-const fsp = require('fs').promises
+import path from 'path'
+import fsp from 'fs/promises'
 
-const glob = require('fast-glob')
-const { Eta } = require('eta')
-const chokidar = require('chokidar')
-// const getFileSize = require('../utils/getFileSize')
+import glob from 'fast-glob'
+import { Eta } from 'eta'
+import chokidar from 'chokidar'
+// import getFileSize from '../utils/getFileSize.js'
 
 async function buildHTML(props) {
   const { config, task, inputOptions, outputOptions, reloader } = props
@@ -200,6 +200,6 @@ async function buildHTML(props) {
     })
 }
 
-module.exports = () => ({
+export default () => ({
   build: buildHTML,
 })

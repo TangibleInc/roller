@@ -1,24 +1,28 @@
-const path = require('path')
-const glob = require('fast-glob')
-const fs = require('fs-extra')
+import path from 'path'
+import glob from 'fast-glob'
+import fs from 'fs-extra'
+import { fileURLToPath } from 'url'
+import run from '../utils/run.js'
 
-const run = require('../utils/run')
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const prettierIgnorePath = path.resolve(
-  path.join(__dirname, '..', 'config', '.prettierignore')
+  path.join(__dirname, '..', 'config', '.prettierignore'),
 )
 
 let phpBeautify
 
-async function format({ config, lint = false }) {
+export default async function format({ config, lint = false }) {
   if (!config.format) {
-    const { homepage } = require('../package.json')
+    const { homepage } = await fs.readJson(
+      path.join(__dirname, '../package.json')
+    )
 
     console.log(
       `Format command requires the "format" property in the config file
 
 Documentation: ${homepage}#format
-`
+`,
     )
     return
   }
@@ -89,7 +93,7 @@ Documentation: ${homepage}#format
       if (lint) continue // No lint for JS, Sass, etc.
 
       prettierFiles.push(
-        ...filesByType[type].map((f) => f.replace(/"/g, '"')) // Escape quotes just in case
+        ...filesByType[type].map((f) => f.replace(/"/g, '"')), // Escape quotes just in case
       )
       continue
     }
@@ -103,7 +107,7 @@ Documentation: ${homepage}#format
         hasPhp = true
       } catch (e) {
         console.log(
-          `PHP Beautify is now optional.\n\nPlease run: npm install --save-dev @tangible/php-beautify\n`
+          `PHP Beautify is now optional.\n\nPlease run: npm install --save-dev @tangible/php-beautify\n`,
         )
         continue
       }
@@ -170,10 +174,8 @@ Documentation: ${homepage}#format
 
         console.error(e.message)
       }) // Let other tasks complete
-    })
+    }),
   )
 
   if (hasPhp) process.exit() // Exit to stop PHP process
 }
-
-module.exports = format

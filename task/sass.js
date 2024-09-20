@@ -1,15 +1,15 @@
-const path = require('path')
+import path from 'path'
 
 // Rollup plugins
-const autoprefixer = require('autoprefixer')
-const del = require('rollup-plugin-delete')
+import autoprefixer from 'autoprefixer'
+import del from 'rollup-plugin-delete'
 /**
  * Using fork of rollup-plugin-styles with updated dependencies
  * See [Support for Rollup v3](https://github.com/Anidetrix/rollup-plugin-styles/issues/224)
  */
-const styles = require('@ironkinoko/rollup-plugin-styles')
+import styles from '../lib/rollup-plugin-styler/index.js'
 
-function createOptionsForTaskType(config, task) {
+export default async function createOptionsForTaskType(config, task) {
   const {
     rootDir,
     env, // Same as process.env.NODE_ENV but allow override
@@ -41,7 +41,8 @@ function createOptionsForTaskType(config, task) {
         // https://anidetrix.github.io/rollup-plugin-styles/interfaces/loaders_sass.sassloaderoptions.html
         sass: {
           includePaths: moduleDirectories, // ['node_modules'],
-          impl: require.resolve('sass'), // Implementation: Use included Dart Sass
+          impl: 'sass', // import.meta.resolve('sass'),
+            // require.resolve('sass'), // Implementation: Use included Dart Sass
         },
         // https://anidetrix.github.io/rollup-plugin-styles/interfaces/types.options.html
         // https://anidetrix.github.io/rollup-plugin-styles/interfaces/loaders_postcss_url.urloptions.html
@@ -62,5 +63,3 @@ function createOptionsForTaskType(config, task) {
     ],
   }
 }
-
-module.exports = createOptionsForTaskType
