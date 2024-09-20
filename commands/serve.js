@@ -1,10 +1,10 @@
-const path = require('path')
-const http = require('http')
-const { execSync } = require('child_process')
-const getPort = require('../utils/getPort')
-const handler = require('serve-handler')
+import path from 'path'
+import http from 'http'
+import { execSync } from 'child_process'
+import handler from 'serve-handler'
+import getPort from '../utils/getPort.js'
 
-async function serve({ config }) {
+export default async function serve({ config }) {
   const { rootDir, isDev } = config
 
   const serveOptions = config.serve || {}
@@ -43,7 +43,7 @@ async function serve({ config }) {
      * @see https://github.com/remy/nodemon/blob/main/doc/requireable.md
      */
 
-    const nodemon = require('nodemon')
+    const nodemon = await import('nodemon')
 
     nodemon({
       script: scriptPath,
@@ -109,5 +109,3 @@ async function serve({ config }) {
     })
   })
 }
-
-module.exports = serve

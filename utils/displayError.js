@@ -1,4 +1,4 @@
-function displayError(e, config) {
+export default function displayError(e, config) {
   const { rootDir } = config
 
   console.log(
@@ -6,5 +6,3 @@ function displayError(e, config) {
   )
   if (e.frame) console.log(`${e.frame}\n`)
 }
-
-module.exports = displayError

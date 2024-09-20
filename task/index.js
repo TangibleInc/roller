@@ -5,11 +5,11 @@
  * @see https://rollupjs.org/guide/en/#big-list-of-options
  */
 
-const path = require('path')
+import path from 'path'
 
 const supportedTaskTypes = ['js', 'sass', 'html', 'copy', 'custom']
 
-function createTaskConfigs({ config, task }) {
+export default async function createTaskConfigs({ config, task }) {
   if (supportedTaskTypes.indexOf(task.task) < 0) {
     return
   }
@@ -20,11 +20,11 @@ function createTaskConfigs({ config, task }) {
     isDev,
   } = config
 
-  const createOptionsForTaskType = require(`./${task.task}`)
+  const createOptionsForTaskType = (await import(`./${task.task}.js`)).default
 
   if (!task.src || !task.dest)
     return {
-      inputOptions: createOptionsForTaskType(config, task),
+      inputOptions: await createOptionsForTaskType(config, task),
       outputOptions: {},
     }
 
@@ -36,7 +36,7 @@ function createTaskConfigs({ config, task }) {
     input: task.src,
     preserveSymlinks: true,
 
-    ...createOptionsForTaskType(config, task),
+    ...await createOptionsForTaskType(config, task),
 
     // https://rollupjs.org/guide/en/#onwarn
     onwarn(warning, rollupWarn) {
@@ -80,5 +80,3 @@ function createTaskConfigs({ config, task }) {
     outputOptions,
   }
 }
-
-module.exports = createTaskConfigs

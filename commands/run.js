@@ -1,16 +1,15 @@
 /**
  * Run command: Build a script with ESBuild and run
  */
-const path = require('path')
-const { existsSync, readFileSync } = require('node:fs')
-const { execSync } = require('node:child_process')
-// const fs = require('node:fs')
-// const url = require('node:url')
-const { join: joinPath, isAbsolute } = require('node:path')
-const esbuild = require('esbuild')
-const { nodeExternalsPlugin } = require('esbuild-node-externals')
-// const bunOr = require('./bun-or')
-const prompt = require('../utils/prompt')
+import path, { join as joinPath, isAbsolute } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { execSync } from 'node:child_process'
+// import fs from 'node:fs'
+// import url from 'node:url'
+import esbuild from 'esbuild'
+import { nodeExternalsPlugin } from 'esbuild-node-externals'
+// import bunOr from './bun-or.js'
+import prompt from '../utils/prompt.js'
 
 /**
  * Replace __dirname based on source file path
@@ -41,7 +40,7 @@ const dirnamePlugin = {
   },
 }
 
-module.exports = async function runEsbuild(props = {}) {
+export default async function runEsbuild(props = {}) {
   const {
     argv: _argv = process.argv,
     projectPath = process.cwd(),

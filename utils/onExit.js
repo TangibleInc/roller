@@ -24,7 +24,7 @@ function exit(exit, signal) {
   }
 }
 
-function onExit(callback) {
+export default function onExit(callback) {
   callbacks.add(callback)
 
   if (!isRegistered) {
@@ -48,5 +48,3 @@ function onExit(callback) {
     callbacks.delete(callback)
   }
 }
-
-module.exports = onExit

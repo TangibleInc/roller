@@ -1,9 +1,9 @@
-const glob = require('fast-glob')
+import glob from 'fast-glob'
 
 /**
  * List command: Lists all modules in the project with a config file (tangible.config.js)
  */
-module.exports = async function() {
+export default async function list() {
 
   const configFileName = 'tangible.config.js'
   const files = await glob([`**/${configFileName}`, '!**/node_modules/**'], {

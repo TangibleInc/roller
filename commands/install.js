@@ -1,15 +1,15 @@
-const path = require('path')
-const fs = require('fs/promises')
-const { Readable } = require('stream')
-const { extract } = require('zip-lib')
-const run = require('../utils/run')
-const fileExists = require('../utils/fileExists')
-const prompt = require('../utils/prompt')
+import path from 'path'
+import fs from 'fs/promises'
+import { Readable } from 'stream'
+import { extract } from 'zip-lib'
+import run from '../utils/run.js'
+import fileExists from '../utils/fileExists.js'
+import prompt from '../utils/prompt.js'
 
 /**
  * Install dependencies from Git repository or zip file URL
  */
-module.exports = async function installCommand({ config }) {
+export default async function installCommand({ config }) {
   const { cwd, install } = config
 
   if (!install) {

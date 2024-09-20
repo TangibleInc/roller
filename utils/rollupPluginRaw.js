@@ -1,12 +1,12 @@
 // Based on: https://github.com/loonguo/rollup-plugin-raw
 
-const { resolve } = require('path')
-const { readFileSync } = require('fs')
-const { createFilter } = require('@rollup/pluginutils')
-// const type { Plugin } = require('rollup')
-// const { RollupRawOptions } = require('../types/type')
+import { resolve } from 'path'
+import { readFileSync } from 'fs'
+import { createFilter } from '@rollup/pluginutils'
+// import type { Plugin } from 'rollup'
+// import { RollupRawOptions } from '../types/type.js'
 
-function raw(options /*: RollupRawOptions */)/*: Plugin */ {
+export default function raw(options /*: RollupRawOptions */)/*: Plugin */ {
   if (!options.include) {
     throw Error('include option should be specified')
   }
@@ -40,5 +40,3 @@ function raw(options /*: RollupRawOptions */)/*: Plugin */ {
     }
   }
 }
-
-module.exports = raw

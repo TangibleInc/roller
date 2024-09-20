@@ -1,7 +1,7 @@
-const { execSync } = require('child_process')
+import { execSync } from 'child_process'
 
-const run = (cmd, options = {}) =>
-  new Promise((resolve, reject) => {
+export default function run(cmd, options = {}) {
+  return new Promise((resolve, reject) => {
     const { silent = false, capture = false, cwd = process.cwd() } = options
 
     // if (!silent && !capture) console.log(cmd)
@@ -18,5 +18,4 @@ const run = (cmd, options = {}) =>
       reject(e)
     }
   })
-
-module.exports = run
+}

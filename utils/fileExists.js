@@ -1,6 +1,6 @@
-const fs = require('fs/promises')
+import fs from 'fs/promises'
 
-const fileExists = async (file) => {
+export default async function fileExists(file) {
   try {
     await fs.access(file)
     return true
@@ -8,5 +8,3 @@ const fileExists = async (file) => {
     return false
   }
 }
-
-module.exports = fileExists

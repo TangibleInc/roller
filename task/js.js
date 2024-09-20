@@ -1,27 +1,28 @@
-const path = require('path')
+import path from 'path'
 
 // Rollup plugins
-const alias = require('@rollup/plugin-alias')
-const commonjs = require('@rollup/plugin-commonjs')
-const esbuild = require('rollup-plugin-esbuild').default
-const externalGlobals = require('rollup-plugin-external-globals')
-const image = require('@rollup/plugin-image')
-const inject = require('@rollup/plugin-inject')
-const json = require('@rollup/plugin-json')
-const polyfillNode = require('rollup-plugin-polyfill-node')
-const { nodeResolve } = require('@rollup/plugin-node-resolve')
-const replace = require('@rollup/plugin-replace')
-const injectProcessEnv = require('rollup-plugin-inject-process-env')
+import alias from '@rollup/plugin-alias'
+import commonjs from '@rollup/plugin-commonjs'
+import esbuild from 'rollup-plugin-esbuild'
+import externalGlobals from 'rollup-plugin-external-globals'
+import image from '@rollup/plugin-image'
+import inject from '@rollup/plugin-inject'
+import json from '@rollup/plugin-json'
+import polyfillNode from 'rollup-plugin-polyfill-node'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
+import replace from '@rollup/plugin-replace'
+import injectProcessEnv from 'rollup-plugin-inject-process-env'
 /**
  * Using fork of rollup-plugin-styles with updated dependencies
+ * https://github.com/plumelo/rollup-plugin-styler
  * See [Support for Rollup v3](https://github.com/Anidetrix/rollup-plugin-styles/issues/224)
  */
-const styles = require('@ironkinoko/rollup-plugin-styles')
-const postcssUrl = require('postcss-url')
-const kebabToCamel = require('../utils/kebabToCamel')
-const raw = require('../utils/rollupPluginRaw')
+import styles from 'rollup-plugin-styler'
+import postcssUrl from 'postcss-url'
+import kebabToCamel from '../utils/kebabToCamel.js'
+import raw from '../utils/rollupPluginRaw.js'
 
-function createOptionsForTaskType(config, task) {
+export default function createOptionsForTaskType(config, task) {
   const {
     rootDir,
     env, // Same as process.env.NODE_ENV but allow override
@@ -440,5 +441,3 @@ function createOptionsForTaskType(config, task) {
     ],
   }
 }
-
-module.exports = createOptionsForTaskType
