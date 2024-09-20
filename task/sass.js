@@ -7,7 +7,7 @@ import del from 'rollup-plugin-delete'
  * Using fork of rollup-plugin-styles with updated dependencies
  * See [Support for Rollup v3](https://github.com/Anidetrix/rollup-plugin-styles/issues/224)
  */
-import styles from 'rollup-plugin-styler'
+import styles from '../lib/rollup-plugin-styler/index.js'
 
 export default async function createOptionsForTaskType(config, task) {
   const {

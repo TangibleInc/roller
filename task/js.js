@@ -17,7 +17,7 @@ import injectProcessEnv from 'rollup-plugin-inject-process-env'
  * https://github.com/plumelo/rollup-plugin-styler
  * See [Support for Rollup v3](https://github.com/Anidetrix/rollup-plugin-styles/issues/224)
  */
-import styles from 'rollup-plugin-styler'
+import styles from '../lib/rollup-plugin-styler/index.js'
 import postcssUrl from 'postcss-url'
 import kebabToCamel from '../utils/kebabToCamel.js'
 import raw from '../utils/rollupPluginRaw.js'

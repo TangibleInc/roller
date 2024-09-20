@@ -5,7 +5,7 @@
  */
 
 import path from 'path'
-import rollup from 'rollup'
+import * as rollup from 'rollup'
 import onExit from '../utils/onExit.js'
 import displayError from '../utils/displayError.js'
 

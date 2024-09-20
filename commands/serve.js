@@ -2,7 +2,7 @@ import path from 'path'
 import http from 'http'
 import { execSync } from 'child_process'
 import handler from 'serve-handler'
-import getPort from '../utils/getPort.js'
+import getPort, { portNumbers } from '../utils/getPort.js'
 
 export default async function serve({ config }) {
   const { rootDir, isDev } = config
@@ -43,7 +43,7 @@ export default async function serve({ config }) {
      * @see https://github.com/remy/nodemon/blob/main/doc/requireable.md
      */
 
-    const nodemon = await import('nodemon')
+    const nodemon = (await import('nodemon')).default
 
     nodemon({
       script: scriptPath,
@@ -86,7 +86,7 @@ export default async function serve({ config }) {
   )
 
   const availablePort = await getPort({
-    port: getPort.portNumbers(port, port + 100),
+    port: portNumbers(port, port + 100),
   })
 
   if (serveOptions.port && parseInt(serveOptions.port) !== availablePort) {
