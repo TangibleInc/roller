@@ -51,12 +51,17 @@ module.exports = async function installCommand({ config }) {
       const targetPath = path.join(parentPath, folderName)
 
       if (await fileExists(targetPath)) {
+        if (!shouldUpdate) {
+          continue
+        }
+
         const command = `git pull ${git} ${branch}`
         console.log(command)
 
         await run(command, {
           cwd: targetPath,
         })
+
       } else {
         const command = `git clone --recursive --depth 1 --single-branch --branch ${branch} ${git} ${folderName || slug}`
         console.log(command)

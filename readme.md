@@ -11,7 +11,7 @@ https://github.com/tangibleinc/tangible-roller
 
 ## Requirement
 
-[Node.js](https://nodejs.org/) version 12 or higher is required.
+[Node.js](https://nodejs.org/) version 18 or higher is required.
 
 
 ## Install
