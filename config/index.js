@@ -129,6 +129,7 @@ export default async function createConfig({ commandName, subproject }) {
     serve,
     archive,
     install,
+    installDev,
   } = configJson instanceof Function ? await configJson() : configJson
 
   for (const task of tasks) {
@@ -190,5 +191,6 @@ export default async function createConfig({ commandName, subproject }) {
     serve,
     archive,
     install,
+    installDev,
   }
 }

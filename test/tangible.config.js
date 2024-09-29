@@ -9,21 +9,21 @@ module.exports = {
     {
       src: 'src/index.jsx',
       dest: 'build/with-preact.min.js',
-      react: 'preact' // react, preact, wp
+      react: 'preact', // react, preact, wp
     },
     {
       src: 'src/index.jsx',
       dest: 'build/with-preact-window.min.js',
-      react: 'window.Tangible.Preact'
+      react: 'window.Tangible.Preact',
     },
     {
       src: 'src/wp.jsx',
       dest: 'build/wp.min.js',
-      react: 'wp'
+      react: 'wp',
     },
     {
       src: 'src/index.scss',
-      dest: 'build/test.min.css'
+      dest: 'build/test.min.css',
     },
     {
       src: 'src/index.html',
@@ -38,14 +38,14 @@ module.exports = {
       src: 'public',
       dest: 'build',
     },
-    async function({ config, task = {} }) {
+    async function ({ config, task = {} }) {
       console.log('Custom build function')
-    }
+    },
   ],
   format: 'src',
   serve: {
     dir: 'build',
-    node: 'server.js'
+    node: 'server.js',
   },
   archive: {
     src: [
@@ -56,6 +56,14 @@ module.exports = {
       '!build/roller-test',
     ],
     dest: 'build/project.zip',
-    rootFolder: 'roller-test'
-  }
+    rootFolder: 'roller-test',
+  },
+  install: [
+    {
+      git: 'git@github.com:tangibleinc/framework',
+      dest: 'vendor/tangible/framework',
+      branch: 'main',
+    },
+  ],
+  installDev: [],
 }

@@ -235,6 +235,39 @@ It requires the config property `archive`. It is an object with
 - `dest` - Path to destination file with extension `.zip`
 - `exclude` - Optional: String or an array of path patterns to match folders and files to exclude from the package
 
+### Install dependencies
+
+Run the `install` command to install dependencies for production or development.
+
+```sh
+npx roll install
+```
+
+This requires the config property `install`. It is a list of objects which define a dependency.
+
+- `zip` - Zip package URL, or
+- `git` - Git repository URL
+- `branch` - Git branch - Optional: default is `main`
+- `dest` - Path to destination folder
+
+It can be useful to run this as `postinstall` script, to prepare a project.
+
+#### Dev dependencies
+
+An optional config property `installDev` defines dependencies needed only during development, such as third-party plugins or companion libraries.
+
+These can be installed with the `--dev` option.
+
+```sh
+npx roll install --dev
+```
+
+#### Update
+
+To update the dependencies, run the `update` command. Git repositories pull from remote origin, and zip sources are downloaded optionally by prompting yes or no.
+
+Use the `--dev` option to update dev dependencies also.
+
 ## Comparison with Tangible Builder
 
 Tangible Roller is the next generation of the build tool. It's much faster, and better compatible with Node.js version 12 and above.

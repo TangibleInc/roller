@@ -10,7 +10,7 @@ import prompt from '../utils/prompt.js'
  * Install dependencies from Git repository or zip file URL
  */
 export default async function installCommand({ config }) {
-  const { cwd, install } = config
+  const { cwd, install = [], installDev = [] } = config
 
   if (!install) {
     console.log('Required property "install" in tangible.config.js')
@@ -18,16 +18,16 @@ export default async function installCommand({ config }) {
     return
   }
 
-  const shouldUpdate =
-    config.update ?? process.argv.slice(2).indexOf('update') >= 0
-  // process.argv
-  //   .slice(2)
-  //   .reduce((result, arg) => result || arg === '--update', false)
+  const args = process.argv.slice(2)
+  const shouldUpdate = config.update || args.indexOf('--update') >= 0
+  const shouldInstallDev = args.indexOf('--dev') >= 0
   const dirsCreated = {}
 
-  for (const { git, branch = 'main', zip, dest } of install) {
+  const deps = [...install, ...(shouldInstallDev ? installDev : [])]
+
+  for (const { git, branch = 'main', zip, dest } of deps) {
     if (!dest) {
-      console.error('Property "dest" required', install)
+      console.error('Property "dest" required', git || zip)
       continue
     }
 
@@ -49,19 +49,21 @@ export default async function installCommand({ config }) {
         .replace(/\.git$/, '')
 
       const targetPath = path.join(parentPath, folderName)
+      const relativeFolderPath = path.relative(cwd, targetPath)
 
       if (await fileExists(targetPath)) {
         if (!shouldUpdate) {
+          console.log('Folder exists', relativeFolderPath)
           continue
         }
+        console.log('Update existing folder', relativeFolderPath)
 
-        const command = `git pull ${git} ${branch}`
+        const command = `git pull --ff-only ${git} ${branch}`
         console.log(command)
 
         await run(command, {
           cwd: targetPath,
         })
-
       } else {
         const command = `git clone --recursive --depth 1 --single-branch --branch ${branch} ${git} ${folderName || slug}`
         console.log(command)
