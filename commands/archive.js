@@ -26,6 +26,9 @@ export default async function archive({ config }) {
     return
   }
 
+  const args = process.argv.slice(2)
+  const skipConfirm = args.indexOf('-y') >= 0
+
   const { rootDir } = config
   const {
     src,
@@ -42,7 +45,10 @@ export default async function archive({ config }) {
 
   for (const childConfig of configs) {
     const childConfigPath = path.join(rootDir, childConfig)
-    const relativeChildRootPath = path.relative(rootDir, path.dirname(childConfigPath))
+    const relativeChildRootPath = path.relative(
+      rootDir,
+      path.dirname(childConfigPath),
+    )
 
     /**
      * ES Module loading with abolute path fails on Windows unless it's
@@ -61,7 +67,9 @@ export default async function archive({ config }) {
       `${relativeChildRootPath}/${pattern.replace('^/', '')}`
 
     src.push(...(configJson?.archive?.src ?? []).map(relativeToChildFolder))
-    exclude.push(...(configJson?.archive?.exclude ?? []).map(relativeToChildFolder))
+    exclude.push(
+      ...(configJson?.archive?.exclude ?? []).map(relativeToChildFolder),
+    )
   }
 
   const files = await glob(src, {
@@ -88,21 +96,23 @@ export default async function archive({ config }) {
 
   console.log('Archive file:', dest)
 
-  function waitKeyPressed() {
-    return new Promise((resolve) => {
-      // const wasRaw = process.stdin.isRaw
-      // process.stdin.setRawMode(true) // Single key press instead of line
-      process.stdin.resume()
-      process.stdin.once('data', (data) => {
-        process.stdin.pause()
-        // process.stdin.setRawMode(wasRaw)
-        resolve(data.toString())
+  if (!skipConfirm) {
+    function waitKeyPressed() {
+      return new Promise((resolve) => {
+        // const wasRaw = process.stdin.isRaw
+        // process.stdin.setRawMode(true) // Single key press instead of line
+        process.stdin.resume()
+        process.stdin.once('data', (data) => {
+          process.stdin.pause()
+          // process.stdin.setRawMode(wasRaw)
+          resolve(data.toString())
+        })
       })
-    })
-  }
+    }
 
-  console.log('Press enter to continue, or CTRL + C to stop')
-  await waitKeyPressed()
+    console.log('Press enter to continue, or CTRL + C to stop')
+    await waitKeyPressed()
+  }
 
   /**
    * https://github.com/fpsqdb/zip-lib
@@ -130,4 +140,6 @@ export default async function archive({ config }) {
 
     zip.archive(archivePath).then(resolve, reject)
   })
+
+  console.log('Wrote', dest)
 }
