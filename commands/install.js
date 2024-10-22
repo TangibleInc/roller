@@ -21,6 +21,7 @@ export default async function installCommand({ config }) {
   const args = process.argv.slice(2)
   const shouldUpdate = config.update || args.indexOf('--update') >= 0
   const shouldInstallDev = args.indexOf('--dev') >= 0
+  const skipPrompt = args.indexOf('-y') >= 0
   const dirsCreated = {}
 
   const deps = [...install, ...(shouldInstallDev ? installDev : [])]
@@ -35,8 +36,9 @@ export default async function installCommand({ config }) {
     const folderName = parts.pop()
     const parentPath = path.join(cwd, ...parts)
 
-    // Ensure parent older exists
-    if (!dirsCreated[parentPath]) {
+    // Ensure parent folder exists
+    if (!dirsCreated[parentPath] && !(await fileExists(parentPath))) {
+      console.log('Create parent folder', parts.join('/'))
       await fs.mkdir(parentPath, { recursive: true })
       dirsCreated[parentPath] = true
     }
@@ -54,18 +56,26 @@ export default async function installCommand({ config }) {
       // Fallback to HTTPS instead of Git/SSH protocol
       const fallbackGit = git.replace('git@github.com:', 'https://github.com/')
 
-      async function runWithFallback(command) {
+      async function runWithFallback(command, givenOptions = {}) {
         const options = {
-          cwd: targetPath,
+          cwd: givenOptions.cwd || parentPath,
         }
+        // console.log('Running command in path', options.cwd)
         try {
           console.log(command)
           await run(command, options)
         } catch (e) {
-          console.log('Git did\'t work with SSH protocol. Trying fallback with HTTPS.')
-          const fallbackCommand = command.replace(git, fallbackGit)
-          console.log(fallbackCommand)
-          await run(fallbackCommand, options)
+          if (git === fallbackGit) {
+            console.log('Git clone failed')
+            console.error(e)
+          } else {
+            console.log(
+              "Git did't work with SSH protocol. Trying fallback with HTTPS.",
+            )
+            const fallbackCommand = command.replace(git, fallbackGit)
+            console.log(fallbackCommand)
+            await run(fallbackCommand, options)
+          }
         }
       }
 
@@ -76,10 +86,15 @@ export default async function installCommand({ config }) {
         }
         console.log('Update existing folder', relativeFolderPath)
 
-        await runWithFallback(`git pull --ff-only ${git} ${branch}`)
+        await runWithFallback(`git pull --ff-only ${git} ${branch}`, {
+          cwd: targetPath,
+        })
       } else {
         await runWithFallback(
           `git clone --recursive --depth 1 --single-branch --branch ${branch} ${git} ${folderName || slug}`,
+          {
+            cwd: parentPath,
+          },
         )
       }
 
@@ -95,18 +110,18 @@ export default async function installCommand({ config }) {
         .replace(/\.zip$/, '')
 
       const zipFilePath = path.join(parentPath, slug + '.zip')
-      const folderPath = path.join(parentPath, folderName || slug)
-      const relativeFolderPath = path.relative(cwd, folderPath)
+      const targetPath = path.join(parentPath, folderName || slug)
+      const relativeFolderPath = path.relative(cwd, targetPath)
 
-      if (await fileExists(folderPath)) {
+      if (await fileExists(targetPath)) {
         if (!shouldUpdate) {
           console.log('Folder exists', relativeFolderPath)
           continue
         }
         console.log('Replace existing folder', relativeFolderPath)
-        const answer = await prompt(
-          `Enter "y" to continue, or nothing to skip: `,
-        )
+        const answer = skipPrompt
+          ? false
+          : await prompt(`Enter "y" to continue, or nothing to skip: `)
         if (answer === false) {
           // CTRL+C
           console.log()
@@ -116,7 +131,7 @@ export default async function installCommand({ config }) {
           // Cancelled
           continue
         }
-        await fs.rm(folderPath, {
+        await fs.rm(targetPath, {
           recursive: true,
         })
       }
