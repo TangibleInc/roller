@@ -65,5 +65,11 @@ module.exports = {
       branch: 'main',
     },
   ],
-  installDev: [],
+  installDev: [
+    {
+      git: 'git@github.com:tangibleinc/fields-pro',
+      dest: 'vendor/tangible/fields-pro',
+      branch: 'main',
+    },
+  ],
 }

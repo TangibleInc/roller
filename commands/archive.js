@@ -83,7 +83,8 @@ export default async function archive({ config }) {
     ].map((f) => (!f.startsWith('/') && !f.startsWith('./') ? '**/' + f : f)),
   })
 
-  console.log('Files to archive:', files)
+  console.log('Files to archive:')
+  console.log(files.join('\n'))
 
   console.log('Archive file:', dest)
 
