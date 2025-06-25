@@ -127,11 +127,16 @@ export default function createOptionsForTaskType(config, task) {
   const jsxFactory = `${reactGlobal}.createElement`
   const jsxFragment = `${reactGlobal}.Fragment`
 
-  // Provide default aliases for Preact
+  /**
+   * Provide aliases for Preact
+   * https://preactjs.com/guide/v10/getting-started/#aliasing-in-rollup
+   */
   if (reactMode === 'preact' && !aliases.react) {
     Object.assign(aliases, {
       react: 'preact/compat',
       'react-dom': 'preact/compat',
+      'react-dom/test-utils': 'preact/test-utils',
+      'react/jsx-runtime': 'preact/jsx-runtime',
     })
   }
 

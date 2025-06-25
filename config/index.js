@@ -11,8 +11,7 @@ export default async function createConfig({ commandName, subproject }) {
   let rootDir = cwd
   let isChildProjectFolder = false
 
-  const configJsFileName = 'tangible.config.js'
-
+  let configJsFileName = 'tangible.config.js'
   let configJsPath = path.join(rootDir, configJsFileName)
 
   const isConfigRequired = commandName!=='run'
@@ -22,7 +21,7 @@ export default async function createConfig({ commandName, subproject }) {
     const name = subproject
 
     // Child project directory
-    const customConfigJsPath = path.join(rootDir, name, configJsFileName)
+    let customConfigJsPath = path.join(rootDir, name, configJsFileName)
 
     if (fs.existsSync(customConfigJsPath)) {
       /**

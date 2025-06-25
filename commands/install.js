@@ -54,11 +54,13 @@ export default async function installCommand({ config }) {
       const relativeFolderPath = path.relative(cwd, targetPath)
 
       // Fallback to HTTPS instead of Git/SSH protocol
-      const fallbackGit = git.replace('git@github.com:', 'https://github.com/')
+      const fallbackGit = git
+        .replace('git@github.com:', 'https://github.com/')
+        .replace('git@bitbucket.org:', 'https://bitbucket.org/')
 
       async function runWithFallback(command, givenOptions = {}) {
         const options = {
-          cwd: givenOptions.cwd || parentPath,
+          cwd: givenOptions.cwd || parentPath
         }
         // console.log('Running command in path', options.cwd)
         try {
@@ -70,7 +72,7 @@ export default async function installCommand({ config }) {
             console.error(e)
           } else {
             console.log(
-              "Git did't work with SSH protocol. Trying fallback with HTTPS.",
+              "Git did't work with SSH protocol. Trying fallback with HTTPS."
             )
             const fallbackCommand = command.replace(git, fallbackGit)
             console.log(fallbackCommand)
@@ -87,14 +89,14 @@ export default async function installCommand({ config }) {
         console.log('Update existing folder', relativeFolderPath)
 
         await runWithFallback(`git pull --ff-only ${git} ${branch}`, {
-          cwd: targetPath,
+          cwd: targetPath
         })
       } else {
         await runWithFallback(
           `git clone --recursive --depth 1 --single-branch --branch ${branch} ${git} ${folderName || slug}`,
           {
-            cwd: parentPath,
-          },
+            cwd: parentPath
+          }
         )
       }
 
@@ -132,7 +134,7 @@ export default async function installCommand({ config }) {
           continue
         }
         await fs.rm(targetPath, {
-          recursive: true,
+          recursive: true
         })
       }
 
