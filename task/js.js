@@ -91,12 +91,13 @@ export default function createOptionsForTaskType(config, task) {
       values[key] =
         task.replaceStrings[key] instanceof Function
           ? () => JSON.stringify(task.replaceStrings[key]())
-          : JSON.stringify(task.replaceStrings[key])
+          : task.replaceStrings[key]
     }
   }
 
   const replaceStrings = {
     // Silence warning from plugin about default value (true) in next version
+    include: task.replaceInclude,
     preventAssignment: true,
     values,
   }
