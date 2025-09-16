@@ -255,8 +255,8 @@ export default {
       src: 'src/index.js',
       dest: 'build/app.min.js',
       replaceStrings: {
-        'process.env.NODE_ENV': JSON.stringify('production'),
-        __buildDate__: () => JSON.stringify(new Date()),
+        'process.env.NODE_ENV': 'production',
+        __buildDate__: () => new Date(),
         __buildVersion: 15
       },
       replaceInclude: [ // By default all files are included, but you can specify include patterns or names
