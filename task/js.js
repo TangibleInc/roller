@@ -95,10 +95,18 @@ export default function createOptionsForTaskType(config, task) {
     }
   }
 
+  if (task.replaceCode) {
+    Object.assign(values, task.replaceCode)
+  }
+
   const replaceStrings = {
     // Silence warning from plugin about default value (true) in next version
     preventAssignment: true,
     values,
+  }
+
+  if ( typeof task.replaceInclude !== 'undefined' ) {
+    replaceStrings.include = task.replaceInclude;
   }
 
   // React
@@ -146,6 +154,7 @@ export default function createOptionsForTaskType(config, task) {
     Object.assign(importToGlobal, {
       react: 'wp.element',
       'react-dom': 'wp.element',
+      'react/jsx-runtime': 'ReactJSXRuntime'
     })
 
     /**
@@ -309,7 +318,7 @@ export default function createOptionsForTaskType(config, task) {
         target: 'es2020', // default, or 'es20XX', 'esnext'
 
         sourceMap: true,
-        minify: !isDev && !isEsModule,
+        minify: task.minify ?? (!isDev && !isEsModule),
 
         // Optionally preserve symbol names during minification
         // https://esbuild.github.io/api/#keep-names

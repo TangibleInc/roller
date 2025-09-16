@@ -12,6 +12,21 @@ module.exports = {
       react: 'preact', // react, preact, wp
     },
     {
+      src: 'src/test/convert.ts',
+      dest: 'build/test/convert.js',
+      minify: false,
+      replaceStrings: {
+        'process.env.NODE_ENV': 'production',
+        __buildDate__: () => new Date(),
+        __buildVersion__: 15
+      },
+      replaceCode: {
+        'process.env.NODE_ENV': '"production"',
+        __currentDate__: 'new Date()',
+        __currentVersion__: '15'
+      },
+    },
+    {
       src: 'src/index.jsx',
       dest: 'build/with-preact-window.min.js',
       react: 'window.Tangible.Preact',
