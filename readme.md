@@ -119,7 +119,7 @@ Create a file called `tangible.config.js` in your project folder.
 Example:
 
 ```js
-module.exports = {
+export default {
   build: [
     {
       src: 'src/index.js',
@@ -177,7 +177,7 @@ Using `alias` you can map an import module name to target another module name or
 Here's an example use of the `alias` parameter:
 
 ```js
-module.exports = {
+export default {
   build: [
     {
       src: 'src/index.js',
@@ -198,7 +198,7 @@ module.exports = {
 Using `importToGlobal` you can map import module names to global variable names. It supports dynamic names such as `@example/*`, for which a function should be given that takes the module name and returns the variable name:
 
 ```js
-module.exports = {
+export default {
   build: [
     {
       src: 'src/index.js',
@@ -218,7 +218,7 @@ In WordPress mode Roller imports `@wordpress/*` into the global variable `wp.*`.
 Using `globalToImport` would be a reverse situation of using `importToGlobal`. Here you can map a global variable name to an import module name. This uses Rollup's [inject](https://github.com/rollup/plugins/tree/master/packages/inject) plugin under the hood.
 
 ```js
-module.exports = {
+export default {
   build: [
     {
       src: 'src/index.js',
@@ -249,7 +249,7 @@ module.exports = {
 Using `replaceStrings` you can [map a string to another string](https://github.com/rollup/plugins/tree/master/packages/replace) during script processing. It can be handy for replacing placeholders with actual variables.
 
 ```js
-module.exports = {
+export default {
   build: [
     {
       src: 'src/index.js',
