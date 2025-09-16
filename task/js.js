@@ -91,15 +91,18 @@ export default function createOptionsForTaskType(config, task) {
       values[key] =
         task.replaceStrings[key] instanceof Function
           ? () => JSON.stringify(task.replaceStrings[key]())
-          : task.replaceStrings[key]
+          : JSON.stringify(task.replaceStrings[key])
     }
   }
 
   const replaceStrings = {
     // Silence warning from plugin about default value (true) in next version
-    include: task.replaceInclude,
     preventAssignment: true,
     values,
+  }
+
+  if ( typeof task.replaceInclude !== 'undefined' ) {
+    replaceStrings.include = task.replaceInclude;
   }
 
   // React
@@ -147,6 +150,7 @@ export default function createOptionsForTaskType(config, task) {
     Object.assign(importToGlobal, {
       react: 'wp.element',
       'react-dom': 'wp.element',
+      'react/jsx-runtime': 'ReactJSXRuntime'
     })
 
     /**
