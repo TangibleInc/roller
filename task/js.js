@@ -314,7 +314,7 @@ export default function createOptionsForTaskType(config, task) {
         target: 'es2020', // default, or 'es20XX', 'esnext'
 
         sourceMap: true,
-        minify: !isDev && !isEsModule,
+        minify: task.minify ?? (!isDev && !isEsModule),
 
         // Optionally preserve symbol names during minification
         // https://esbuild.github.io/api/#keep-names
