@@ -170,10 +170,104 @@ Its value is one of:
 
 The following optional task properties perform various substitutions.
 
-- `alias` - Map import module name to target module name or file path
-- `importToGlobal` - Map import module name to global variable name; supports dynamic name such as `@example/*`, for which a function should be given that takes the module name and returns the variable name
-- `globalToImport` - Map global variable name to import module name
-- `replaceStrings` - Map string to another string
+##### alias
+
+Using `alias` you can map an import module name to target another module name or file path. This uses rollup's [alias](https://github.com/rollup/plugins/tree/master/packages/alias#custom-resolvers) plugin under the hood.
+
+Here's an example use of the `alias` parameter:
+
+```js
+module.exports = {
+  build: [
+    {
+      src: 'src/index.js',
+      dest: 'build/app.min.js',
+      alias: [
+        {
+          find: 'src',
+          replacement: path.resolve(projectRootDir, 'src')
+        }
+      ]
+    },
+  // ...
+}
+```
+
+##### importToGlobal
+
+Using `importToGlobal` you can map import module names to global variable names. It supports dynamic names such as `@example/*`, for which a function should be given that takes the module name and returns the variable name:
+
+```js
+module.exports = {
+  build: [
+    {
+      src: 'src/index.js',
+      dest: 'build/app.min.js',
+      importToGlobal: {
+        '@my-namespace/*': 'myGlobalVar.*'
+      }
+    },
+  // ...
+}
+```
+
+In WordPress mode Roller imports `@wordpress/*` into the global variable `wp.*`.
+
+##### globalToImport
+
+Using `globalToImport` would be a reverse situation of using `importToGlobal`. Here you can map a global variable name to an import module name. This uses Rollup's [inject](https://github.com/rollup/plugins/tree/master/packages/inject) plugin under the hood.
+
+```js
+module.exports = {
+  build: [
+    {
+      src: 'src/index.js',
+      dest: 'build/app.min.js',
+      globalToImport: {
+        // import { Promise } from 'es6-promise'
+        Promise: [ 'es6-promise', 'Promise' ],
+
+        // import { Promise as P } from 'es6-promise'
+        P: [ 'es6-promise', 'Promise' ],
+
+        // import $ from 'jquery'
+        $: 'jquery',
+
+        // import * as fs from 'fs'
+        fs: [ 'fs', '*' ],
+
+        // use a local module instead of a third-party one
+        'Object.assign': path.resolve( 'src/helpers/object-assign.js' ),
+      }
+    },
+  // ...
+}
+```
+
+##### replaceStrings
+
+Using `replaceStrings` you can [map a string to another string](https://github.com/rollup/plugins/tree/master/packages/replace) during script processing. It can be handy for replacing placeholders with actual variables.
+
+```js
+module.exports = {
+  build: [
+    {
+      src: 'src/index.js',
+      dest: 'build/app.min.js',
+      replaceStrings: {
+        'process.env.NODE_ENV': JSON.stringify('production'),
+        __buildDate__: () => JSON.stringify(new Date()),
+        __buildVersion: 15
+      },
+      replaceInclude: [ // By default all files are included, but you can specify include patterns or names
+        path.resolve( 'some/path/' ),
+        /\.[jt]sx?$/,
+        /node_modules/
+      ]
+    },
+  // ...
+}
+```
 
 #### HTML
 
