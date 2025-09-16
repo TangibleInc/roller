@@ -95,6 +95,10 @@ export default function createOptionsForTaskType(config, task) {
     }
   }
 
+  if (task.replaceCode) {
+    Object.assign(values, task.replaceCode)
+  }
+
   const replaceStrings = {
     // Silence warning from plugin about default value (true) in next version
     preventAssignment: true,

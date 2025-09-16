@@ -246,7 +246,7 @@ export default {
 
 ##### replaceStrings
 
-Using `replaceStrings` you can [map a string to another string](https://github.com/rollup/plugins/tree/master/packages/replace) during script processing. It can be handy for replacing placeholders with actual variables.
+Using `replaceStrings` you can [map a string to another string](https://github.com/rollup/plugins/tree/master/packages/replace) during script processing. It can be handy for replacing placeholders with actual values at build time.
 
 ```js
 export default {
@@ -257,15 +257,73 @@ export default {
       replaceStrings: {
         'process.env.NODE_ENV': 'production',
         __buildDate__: () => new Date(),
-        __buildVersion: 15
+        __buildVersion__: 15
       },
-      replaceInclude: [ // By default all files are included, but you can specify include patterns or names
+      replaceInclude: [
         path.resolve( 'some/path/' ),
         /\.[jt]sx?$/,
         /node_modules/
       ]
     },
   // ...
+}
+```
+
+The given values are encoded with `JSON.stringify()`.
+
+By default, the string replacement applies to all files. Optionally use `replaceInclude` to specify an array of include file patterns.
+
+The above replacements will convert this:
+
+```js
+const buildTimeValues = {
+  date: __buildDate__,
+  version: __buildVersion__
+}
+```
+
+..into..
+
+```js
+const buildTimeValues = {
+  date: "2025-09-16T15:26:54.280Z",
+  version: 15
+}
+```
+
+##### replaceCode
+
+This is similar to `replaceStrings`, but it replaces the source with literal code instead of JSON string. It's useful for replacing a placeholder with code that evaluates to a value at run time.
+
+To demonstrate the difference:
+
+```js
+{
+  replaceCode: {
+    'process.env.NODE_ENV': '"production"'
+    __currentDate__: 'new Date()'
+    __currentVersion__: '15'
+  }
+}
+```
+
+The date constant will be replaced by the given code to get a new `Date` instance, instead of a string value evaluated at build time. The version constant will be replaced by the code `15`.
+
+The above replacements will convert this:
+
+```js
+const runTimeValues = {
+  date: __currentDate__,
+  version: __currentVersion__
+}
+```
+
+..into..
+
+```js
+const runTimeValues = {
+  date: new Date(),
+  version: 15
 }
 ```
 
