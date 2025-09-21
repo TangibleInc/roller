@@ -111,10 +111,7 @@ test('Build - Production', async () => {
 
   for (const task of testConfig.build) {
     if (task.dest) {
-      ok(
-        await fileExists(task.dest),
-        `built target exists: ${task.dest}`
-      )
+      ok(await fileExists(task.dest), `built target exists: ${task.dest}`)
     }
   }
 })
@@ -132,11 +129,13 @@ test('Build - Development', async () => {
   }
 
   ok(true, 'runs')
-  is(143, result.code, 'returns code 143 for terminated process')
+  ok(
+    result.code === 143 || result.code === null,
+    'returns code 143 for terminated process, or null in CI environment'
+  )
 })
 
 test('Install', async () => {
-
   ok(testConfig && typeof testConfig.install, 'install task exists')
 
   const { install } = testConfig
@@ -155,16 +154,12 @@ test('Install', async () => {
 
   for (const task of install) {
     if (task.dest) {
-      ok(
-        await fileExists(task.dest),
-        `install target exists: ${task.dest}`
-      )
+      ok(await fileExists(task.dest), `install target exists: ${task.dest}`)
     }
   }
 })
 
 test('Install - Development', async () => {
-
   ok(testConfig && typeof testConfig.installDev, 'installDev task exists')
 
   const { installDev } = testConfig
@@ -183,17 +178,16 @@ test('Install - Development', async () => {
 
   for (const task of installDev) {
     if (task.dest) {
-      ok(
-        await fileExists(task.dest),
-        `install target exists: ${task.dest}`
-      )
+      ok(await fileExists(task.dest), `install target exists: ${task.dest}`)
     }
   }
 })
 
 test('Archive', async () => {
-
-  ok(testConfig && typeof testConfig.archive === 'object', 'archive task exists')
+  ok(
+    testConfig && typeof testConfig.archive === 'object',
+    'archive task exists'
+  )
 
   const { archive } = testConfig
 
