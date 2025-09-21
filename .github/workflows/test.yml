@@ -3,7 +3,7 @@ permissions:
   contents: write
 on:
   push:
-  workflow_call: # allow this workflow to be called from other workflows
+  workflow_call: # Allow this workflow to be called from other workflows
 jobs:
   test:
     runs-on: ubuntu-latest
