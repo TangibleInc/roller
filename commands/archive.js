@@ -27,7 +27,7 @@ export default async function archive({ config }) {
   }
 
   const args = process.argv.slice(2)
-  const skipConfirm = args.indexOf('-y') >= 0
+  const skipConfirm = true // args.indexOf('-y') >= 0
 
   const { rootDir } = config
   const {
