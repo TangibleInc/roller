@@ -404,8 +404,14 @@ export default function createOptionsForTaskType(config, task) {
                 // Strangely, ID can have null character at beginning
                 id = id.replace(/^\0/, '')
 
+                // Rollup resolves ids with backslashes on Windows; without
+                // normalizing, resolved React imports (e.g. from inside
+                // node_modules) never match and get bundled instead of
+                // mapped to the global.
+                const normalizedId = id.replace(/\\/g, '/')
+
                 if (
-                  id.indexOf(`/node_modules/${key}/`) < 0 &&
+                  normalizedId.indexOf(`/node_modules/${key}/`) < 0 &&
                   id !== `${key}?commonjs-external`
                 )
                   continue
