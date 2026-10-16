@@ -36,7 +36,7 @@ export default async function createOptionsForTaskType(config, task) {
         mode: 'extract',
         minimize: isDev ? false : true,
 
-        sourceMap: task.map !== false, // true by default
+        sourceMap: task.map === true, // false by default
         // Sass loader options
         // https://anidetrix.github.io/rollup-plugin-styles/interfaces/loaders_sass.sassloaderoptions.html
         sass: {

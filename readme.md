@@ -147,7 +147,7 @@ The required config property `build` is an array of tasks.
 
 Each task is an object with the following properties:
 
-- `src` - Source file with extension `js`, `jsx`, `ts`, `tsx`, `scss`, or `html`
+- `src` - Source file with extension `js`, `jsx`, `ts`, `tsx`, `css`, `scss`, or `html`
 - `dest` - Destination file with extension `min.js`, `min.css`, or `html`
 
 During development, the source files are watched for any changes, and rebuilt as needed.

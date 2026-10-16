@@ -91,7 +91,7 @@ async function runWithConfig({ commandName, runCommand, config }) {
       const extension = task.src.split('.').pop()
 
       task.task =
-        extension === 'scss'
+        extension === 'scss' || extension === 'css'
           ? 'sass'
           : extension === 'html'
             ? 'html'

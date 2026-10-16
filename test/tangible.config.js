@@ -41,6 +41,10 @@ module.exports = {
       dest: 'build/test.min.css',
     },
     {
+      src: 'src/test.css',
+      dest: 'build/test2.min.css',
+    },
+    {
       src: 'src/index.html',
       dest: 'build/index.html',
     },
