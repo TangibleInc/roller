@@ -6,7 +6,7 @@
   "homepage": "https://github.com/tangibleinc/tangible-roller",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/tangibleinc/tangible-roller.git"
+    "url": "https://github.com/TangibleInc/roller"
   },
   "license": "MIT",
   "main": "index.js",
