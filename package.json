@@ -3,7 +3,7 @@
   "type": "module",
   "version": "2.2.2",
   "description": "Build project assets using Rollup and ESBuild",
-  "homepage": "https://github.com/tangibleinc/tangible-roller",
+  "homepage": "https://github.com/TangibleInc/roller",
   "repository": {
     "type": "git",
     "url": "https://github.com/TangibleInc/roller"
